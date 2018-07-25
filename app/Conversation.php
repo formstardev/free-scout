@@ -3,7 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Folder;
 
 class Conversation extends Model
 {
@@ -189,7 +188,7 @@ class Conversation extends Model
     {
         return $this->belongsTo('App\User');
     }
-    
+
     /**
      * Set preview text.
      *
@@ -271,8 +270,8 @@ class Conversation extends Model
 
     /**
      * Set conersation status and all related fields.
-     * 
-     * @param integer $status
+     *
+     * @param int $status
      */
     public function setStatus($status, $user = null)
     {
@@ -290,17 +289,18 @@ class Conversation extends Model
 
     /**
      * Get next active conversation.
-     * 
-     * @param  string $mode next|prev|closest
+     *
+     * @param string $mode next|prev|closest
+     *
      * @return Conversation
      */
     public function getNearby($mode = 'closest')
     {
         $folder = $this->folder;
-        $query = Conversation::where('folder_id', $folder->id)
+        $query = self::where('folder_id', $folder->id)
             ->where('id', '<>', $this->id);
         $order_bys = $folder->getOrderByArray();
-        
+
         if ($mode != 'prev') {
             // Try to get next conversation
             $query_next = $query;
@@ -340,7 +340,7 @@ class Conversation extends Model
                 $query_prev->orderBy($field, $sort_order);
             }
         }
-        
+
         return $query_prev->first();
     }
 
