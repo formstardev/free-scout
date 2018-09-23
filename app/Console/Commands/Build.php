@@ -18,7 +18,7 @@ class Build extends Command
      *
      * @var string
      */
-    protected $description = 'Run commands building application assets';
+    protected $description = 'Run commands building app assets';
 
     /**
      * Create a new command instance.
