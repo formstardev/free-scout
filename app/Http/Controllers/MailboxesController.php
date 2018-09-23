@@ -29,8 +29,6 @@ class MailboxesController extends Controller
      */
     public function mailboxes()
     {
-        $this->authorize('create', 'App\Mailbox');
-        
         $mailboxes = Mailbox::all();
 
         return view('mailboxes/mailboxes', ['mailboxes' => $mailboxes]);
