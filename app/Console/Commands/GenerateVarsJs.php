@@ -8,14 +8,14 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 
-class GenerateVars extends Command
+class GenerateVarsJs extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'freescout:generate-vars';
+    protected $signature = 'freescout:generate-vars-js';
 
     /**
      * The console command description.

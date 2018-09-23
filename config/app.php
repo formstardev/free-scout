@@ -285,7 +285,6 @@ return [
 
         // Custom
         'Helper'       => App\Misc\Helper::class,
-        'Option'       => App\Option::class,
     ],
 
 ];
