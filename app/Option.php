@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Option extends Model
 {
-    // todo: cache in file (see WordPress)
+    // todo: cache like in WordPress (fetch all options from DB each time)
     public static $cache = [];
 
     public $timestamps = false;
@@ -65,14 +65,14 @@ class Option extends Model
      * @param  string  $name
      * @return string
      */
-    public static function get($name, $default = false, $decode = true, $cache = false)
+    public static function get($name, $default = false, $decode = true)
     {
         // If not passed, get default value from config 
         if (func_num_args() == 1) {
             $default = self::getDefault($name, $default);
         }
 
-        if ($cache && isset(self::$cache[$name])) {
+        if (isset(self::$cache[$name])) {
             return self::$cache[$name];
         }
 
@@ -87,9 +87,7 @@ class Option extends Model
             $value = $default;
         }
 
-        if ($cache) {
-            self::$cache[$name] = $value;
-        }
+        self::$cache[$name] = $value;
 
         return $value;
     }
