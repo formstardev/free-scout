@@ -98,7 +98,6 @@
                             {{ csrf_field() }}
                             <input type="hidden" name="conversation_id" value="{{ $conversation->id }}"/>
                             <input type="hidden" name="mailbox_id" value="{{ $mailbox->id }}"/>
-                            <input type="hidden" name="saved_reply_id" value=""/>
                             {{-- For drafts --}}
                             <input type="hidden" name="thread_id" value=""/>
                             <input type="hidden" name="is_note" value=""/>
@@ -159,7 +158,6 @@
                     </div>
                     <div class="clearfix"></div>
                     @include('conversations/editor_bottom_toolbar')
-                    @action('reply_form.after', $conversation)
                 </div>
             </div>
         </div>

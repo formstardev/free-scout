@@ -8,11 +8,6 @@ var fs_editor_change_timeout = -1;
 var fs_keep_conversation_notes = 30; // days
 var fs_draft_autosave_period = 12; // seconds
 var fs_reply_changed = false;
-var fs_conv_editor_buttons = {};
-var fs_conv_editor_toolbar = [
-    ['style', ['attachment', 'bold', 'italic', 'underline', 'ul', 'ol', 'link', 'picture', 'codeview']],
-    ['actions', ['savedraft', 'discard']],
-];
 
 // Ajax based notifications;
 var poly;
@@ -75,6 +70,21 @@ var EditorAttachmentButton = function (context) {
 			});
 
 			fileInput.click();
+		}
+	});
+
+	return button.render();   // return button as jquery object
+}
+var EditorSavedRepliesButton = function (context) {
+	var ui = $.summernote.ui;
+
+	// create button
+	var button = ui.button({
+		contents: '<i class="glyphicon glyphicon-comment"></i>',
+		tooltip: Lang.get("messages.saved_replies"),
+		container: 'body',
+		click: function () {
+			alert('todo: implement saved replies');
 		}
 	});
 
@@ -178,7 +188,6 @@ $(document).ready(function(){
 
 	polycastInit();
 	webNotificationsInit();
-	initAccordionHeading();
 });
 
 function triggersInit()
@@ -193,7 +202,7 @@ function triggersInit()
 
 	// Modal windows
 	$('a[data-trigger="modal"]').click(function(e) {
-    	triggerModal($(this));
+    	showModal($(this));
     	e.preventDefault();
 	});
 }
@@ -247,12 +256,9 @@ function deleteMailboxModal(modal)
 // https://stackoverflow.com/questions/21628222/summernote-image-upload
 // https://www.kerneldev.com/2018/01/11/using-summernote-wysiwyg-editor-with-laravel/
 // https://gist.github.com/abr4xas/22caf07326a81ecaaa195f97321da4ae
-function summernoteInit(selector, new_options)
+function summernoteInit(selector)
 {
-	if (typeof(new_options) == "undefined") {
-		new_options = {};
-	}
-	options = {
+	$(selector).summernote({
 		minHeight: 120,
 		dialogsInBody: true,
 		disableResizeEditor: true,
@@ -269,7 +275,7 @@ function summernoteInit(selector, new_options)
 	    callbacks: {
 		    onInit: function() {
 		    	// Remove statusbar
-		    	$(selector).parent().children().find('.note-statusbar').remove();
+		    	$('.note-statusbar').remove();
 
 		    	// Insert variables
 				$(selector).parent().children().find('.summernote-inservar:first').on('change', function(event) {
@@ -278,11 +284,7 @@ function summernoteInit(selector, new_options)
 				});
 		    }
 	    }
-	};
-
-	$.extend(options, new_options);
-
-	$(selector).summernote(options);
+	});
 }
 
 function permissionsInit()
@@ -816,20 +818,23 @@ function getGlobalAttr(attr)
 // Initialize conversation body editor
 function convEditorInit()
 {
-	$.extend(fs_conv_editor_buttons, {
-	    attachment: EditorAttachmentButton,
-	    savedraft: EditorSaveDraftButton,
-	    discard: EditorDiscardButton
-	});
-
 	$('#body').summernote({
 		minHeight: 120,
 		dialogsInBody: true,
 		dialogsFade: true,
 		disableResizeEditor: true,
 		followingToolbar: false,
-		toolbar: fs_conv_editor_toolbar,
-		buttons: fs_conv_editor_buttons,
+		toolbar: [
+		    // [groupName, [list of button]]
+		    ['style', ['attachment', 'bold', 'italic', 'underline', 'ul', 'ol', 'link', 'picture', 'codeview', 'savedreplies']],
+		    ['actions', ['savedraft', 'discard']],
+		],
+		buttons: {
+		    attachment: EditorAttachmentButton,
+		    savedreplies: EditorSavedRepliesButton,
+		    savedraft: EditorSaveDraftButton,
+		    discard: EditorDiscardButton
+		},
 		callbacks: {
 	 		onImageUpload: function(files) {
 	 			if (!files) {
@@ -1082,7 +1087,7 @@ function newConversationInit()
 
 		// After send
 		$('.after-send-change').click(function(e) {
-			triggerModal($(this));
+			showModal($(this));
 		});
 
 		// Send reply, new conversation or note
@@ -1211,14 +1216,7 @@ function getQueryParam(name, qs) {
 }
 
 // Show bootstrap modal
-function showModal(params)
-{
-	triggerModal(null, params);
-}
-
-// Show bootstrap modal from link
-// Use showModal instead of this
-function triggerModal(a, params)
+function showModal(a, params)
 {
     if (typeof(params) == "undefined") {
     	params = {};
@@ -1229,7 +1227,6 @@ function triggerModal(a, params)
     	a = $(document.createElement('a'));
     }
 
-    // Title
     var title = a.attr('data-modal-title');
     if (typeof(params.title) != "undefined") {
     	title = params.title;
@@ -1240,16 +1237,10 @@ function triggerModal(a, params)
     if (!title) {
         title = a.text();
     }
-
-    // Remote
     var remote = a.attr('data-remote');
     if (!remote) {
     	remote = a.attr('href');
     }
-    if (typeof(params.remote) != "undefined") {
-    	remote = params.remote;
-    }
-
     var body = a.attr('data-modal-body');
     if (typeof(params.body) != "undefined") {
     	body = params.body;
@@ -1293,15 +1284,6 @@ function triggerModal(a, params)
     }
     if (typeof(modal_class) == "undefined") {
     	modal_class = '';
-    }
-
-    // Convert bool to string
-    for (param in params) {
-    	if (params[param] === true) {
-    		params[param] = 'true';
-    	} else if (params[param] === true) {
-    		params[param] = 'false';
-    	}
     }
 
     var html = [
@@ -1518,7 +1500,7 @@ function changeCustomerInit()
         		'</div>'+
         		'</div>';
 
-			triggerModal(null, {
+			showModal(null, {
 				body: confirm_html,
 				width_auto: 'true',
 				no_header: 'true',
@@ -1554,26 +1536,6 @@ function changeCustomerInit()
 	});
 }
 
-// Show confirmation dialog
-function showModalConfirm(text, ok_class, options, ok_text)
-{
-	if (typeof(ok_text) == "undefined") {
-		ok_text = 'OK';
-	}
-	var confirm_html = '<div>'+
-		'<div class="text-center">'+
-		'<div class="text-larger margin-top-10">'+text+'</div>'+
-		'<div class="form-group margin-top">'+
-		'<button class="btn btn-primary '+ok_class+'">'+ok_text+'</button>'+
-		'<button class="btn btn-link" data-dismiss="modal">'+Lang.get("messages.cancel")+'</button>'+
-		'</div>'+
-		'</div>'+
-		'</div>';
-
-	showModalDialog(confirm_html, options);
-}
-
-// Show modal dialog
 function showModalDialog(body, options)
 {
 	var standard_options = {
@@ -1589,7 +1551,7 @@ function showModalDialog(body, options)
 	}
 	options = Object.assign(standard_options, options);
 	
-	triggerModal(null, options);
+	showModal(null, options);
 }
 
 /*function showSelect2Loader(input)
@@ -1772,8 +1734,8 @@ function showAjaxResult(response)
 	loaderHide();
 	
 	if (typeof(response.status) != "undefined" && response.status == 'success') {
-		if (typeof(response['msg_success']) != "undefined") {
-			showFloatingAlert('success', response['msg_success']);
+		if (typeof(response['success_msg']) != "undefined") {
+			showFloatingAlert('success', response['success_msg']);
 		}
 	} else {
 		showAjaxError(response);
@@ -2210,11 +2172,6 @@ function hideReplyEditor()
 	$(".conv-action").removeClass('inactive');
 }
 
-function getReplyBody(text)
-{
-	return $("#body").val();
-}
-
 function setReplyBody(text)
 {
 	$(".conv-reply-block :input[name='body']:first").val(text);
@@ -2424,33 +2381,9 @@ function stripTags(html)
 	return text;
 }
 
-function htmlEscape(text)
-{
-	return text
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
-}
-
-function htmlDecode(input)
-{
+function htmlDecode(input){
 	var e = document.createElement('div');
 	e.innerHTML = input;
 	// handle case of empty input
 	return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
-}
-
-// Change accordion heading background color on open
-function initAccordionHeading()
-{
-	$(".panel-default .collapse").on('shown.bs.collapse', function(e){
-    	// change heading background when expanded
-    	$(e.target).parent().children('.panel-heading:first').css('background-color', '#f1f3f5');
-	});
-	$(".collapse").on('hidden.bs.collapse', function(e){
-	    // change heading background when hide
-	    $(e.target).parent().children('.panel-heading:first').css('background-color', '');
-	});
 }
