@@ -2976,7 +2976,6 @@ a.disabled:focus {
     display: block;
     padding: 5px;
     white-space: pre;
-    overflow-x: auto;
 }
 
 /**
