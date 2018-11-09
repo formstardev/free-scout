@@ -258,11 +258,6 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\PolycastServiceProvider::class,
-
-        /*
-         * Custom Service Providers...
-         */
-        Codedge\Updater\UpdaterServiceProvider::class,
     ],
 
     /*
@@ -317,7 +312,6 @@ return [
         'Helper'       => App\Misc\Helper::class,
         'MailHelper'   => App\Misc\Mail::class,
         'Option'       => App\Option::class,
-        'Updater'      => Codedge\Updater\UpdaterFacade::class,
     ],
 
 ];

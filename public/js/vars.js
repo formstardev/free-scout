@@ -50,9 +50,7 @@ var LangMessages = {
             "type_delete": "Type :delete",
 
             "drag_image_file": "Drag image or file here",
-            "confirm_delete_module": "Delete this module?",
-            "confirm_update": "Please backup application files and database before you continue.",
-            "update": "Update"
+            "confirm_delete_module": "Delete this module?"
         }    };
 
 (function () {

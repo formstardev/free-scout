@@ -184,42 +184,4 @@ class SystemController extends Controller
 
         return redirect()->route('system.tools');
     }
-
-    /**
-     * Ajax.
-     */
-    public function ajax(Request $request)
-    {
-        $response = [
-            'status' => 'error',
-            'msg'    => '', // this is error message
-        ];
-
-        switch ($request->action) {
-
-            case 'update':
-                try {
-                    $status = \Updater::update();
-                    // Artisan::output()
-                } catch (\Exception $e) {
-                    $response['msg'] = $e->getMessage();
-                }
-                if (!$response['msg'] && $status) {
-                    // Adding session flash is useless as cache is cleated
-                    $response['msg_success'] = __('Application successfully updated');
-                    $response['status'] = 'success';
-                }
-                break;
-
-            default:
-                $response['msg'] = 'Unknown action';
-                break;
-        }
-
-        if ($response['status'] == 'error' && empty($response['msg'])) {
-            $response['msg'] = 'Unknown error occured';
-        }
-
-        return \Response::json($response);
-    }
 }
