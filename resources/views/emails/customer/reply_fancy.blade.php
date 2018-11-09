@@ -41,12 +41,13 @@
 						                        <div style="font-family:Arial, 'Helvetica Neue', Helvetica, Tahoma, sans-serif; color: #232323; font-size:13px; line-height:19px; margin:0;">
 					                                {!! $thread->body !!}
 
-					                                @action('reply_email.before_signature', $mailbox, $conversation, $thread)
+					                                {{-- todo: Satisfaction ratings --}}
+					                                {{--<br><br>How would you rate my reply?<br><a href="" style="color:#50bc1c;">Great</a> &nbsp;&nbsp; <a href="" style="color:#555555;">Okay</a> &nbsp;&nbsp; <a href="" style="color:#f10000;">Not Good</a>
+					                                --}}
 					                                @if ($thread->source_via == App\Thread::PERSON_USER)
 						                                <br>{!! $conversation->getSignatureProcessed() !!}
 						                                <br><br>
 						                            @endif
-						                            @action('reply_email.after_signature', $mailbox, $conversation, $thread)
 	                                            </div>
 	                                        </div>
 						                </td>
