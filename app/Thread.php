@@ -580,12 +580,6 @@ class Thread extends Model
      */
     public function getFromName($mailbox = null)
     {
-        // Created by customer
-        if ($this->source_via == self::PERSON_CUSTOMER) {
-            return $this->getCreatedBy()->getFirstName(true);
-        }
-
-        // Created by user
         if (empty($mailbox)) {
             $mailbox = $this->conversation->mailbox;
         }
