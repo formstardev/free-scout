@@ -1626,11 +1626,6 @@ table.table-conversations td.conv-attachment {
     line-height: 1.45em;
     overflow-y: hidden;
 }
-.thread-opened-at {
-    font-size: 12.5px;
-    margin: 5px 0 0 0;
-    color: #a5b2bd;
-}
 .thread-options {
     position: absolute;
     top: 23px;
@@ -2664,6 +2659,9 @@ ul.prev-convs {
 }
 .margin-left {
     margin-left: 20px !important;
+}
+.margin-right {
+    margin-right: 20px !important;
 }
 .margin-bottom {
     margin-bottom: 20px !important;
