@@ -110,10 +110,9 @@ class PublicController extends Controller
     /*
      * Set a thread as read by customer
      */
-    public function setThreadAsRead($conversation_id, $thread_id)
-    {
+    public function setThreadAsRead($conversation_id, $thread_id) {
         $conversation = Conversation::findOrFail($conversation_id);
-        $thread = Thread::findOrFail($thread_id);
+        $thread       = Thread::findOrFail($thread_id);
 
         // We only track the first opening
         if (empty($thread->opened_at)) {
@@ -133,4 +132,5 @@ class PublicController extends Controller
 
         return $response;
     }
+
 }

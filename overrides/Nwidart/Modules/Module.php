@@ -476,8 +476,7 @@ abstract class Module extends ServiceProvider
 
     /**
      * Check if module is official.
-     *
-     * @return bool [description]
+     * @return boolean [description]
      */
     public function isOfficial()
     {
@@ -486,7 +485,6 @@ abstract class Module extends ServiceProvider
 
     /**
      * Get module license from DB.
-     *
      * @return [type] [description]
      */
     public function getLicense()

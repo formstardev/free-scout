@@ -162,7 +162,6 @@ class Module extends Model
 
     /**
      * Get URL used to active and check license.
-     *
      * @return [type] [description]
      */
     public static function getAppUrl()

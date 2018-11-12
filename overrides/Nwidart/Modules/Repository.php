@@ -291,7 +291,6 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get active modules.
-     *
      * @return [type] [description]
      */
     public function getActive() : array
