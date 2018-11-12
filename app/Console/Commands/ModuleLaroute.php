@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Axn\Laroute\Routes\Collection as Routes;
 use Illuminate\Console\Command;
+use Illuminate\Filesystem\Filesystem;
+use Axn\Laroute\Routes\Collection as Routes;
 
 class ModuleLaroute extends Command
 {
@@ -30,8 +31,8 @@ class ModuleLaroute extends Command
     {
         $app = app();
 
-        $this->config = $app['config'];
-        $this->generator = $app->make('Lord\Laroute\Generators\GeneratorInterface');
+        $this->config     = $app['config'];
+        $this->generator  = $app->make('Lord\Laroute\Generators\GeneratorInterface');
 
         parent::__construct();
     }
@@ -57,7 +58,6 @@ class ModuleLaroute extends Command
             }
             if (!$modules_aliases) {
                 $this->error('No modules found');
-
                 return;
             }
             $all = true;
@@ -75,7 +75,6 @@ class ModuleLaroute extends Command
             $module = \Module::findByAlias($module_alias);
             if (!$module) {
                 $this->error('Module with the specified alias not found: '.$module_alias);
-
                 return;
             }
             $this->generateModuleRoutes($module);
@@ -89,7 +88,6 @@ class ModuleLaroute extends Command
         $public_symlink = public_path('modules').DIRECTORY_SEPARATOR.$module->getAlias();
         if (!file_exists($public_symlink)) {
             $this->error('Public symlink ['.$public_symlink.'] not found. Run module installation command first: php artisan freescout:module-install');
-
             return;
         }
 
@@ -125,14 +123,15 @@ class ModuleLaroute extends Command
      */
     protected function getTemplateData()
     {
-        $namespace = $this->getOptionOrConfig('namespace');
-        $routes = $this->routes->toJSON();
-        $absolute = $this->config->get('laroute.absolute', false);
-        $rootUrl = $this->config->get('app.url', '');
-        $prefix = $this->config->get('laroute.prefix', '');
+        $namespace  = $this->getOptionOrConfig('namespace');
+        $routes     = $this->routes->toJSON();
+        $absolute   = $this->config->get('laroute.absolute', false);
+        $rootUrl    = $this->config->get('app.url', '');
+        $prefix     = $this->config->get('laroute.prefix', '');
 
         return compact('namespace', 'routes', 'absolute', 'rootUrl', 'prefix');
     }
+
 
     /**
      * Get the path where the file will be generated.
@@ -141,7 +140,7 @@ class ModuleLaroute extends Command
      */
     protected function getFileGenerationPath($module_alias)
     {
-        $path = 'public/modules/'.$module_alias.'/js';
+        $path     = 'public/modules/'.$module_alias.'/js';
         $filename = 'laroute'; //$this->getOptionOrConfig('filename');
 
         return "{$path}/{$filename}.js";

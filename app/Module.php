@@ -3,7 +3,6 @@
  * 'active' parameter in module.json is not taken in account.
  * Module 'active' flag is taken from DB.
  */
-
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
@@ -21,16 +20,15 @@ class Module extends Model
 
     public static function getCached()
     {
-        if (!self::$modules) {
+    	if (!self::$modules) {
             // At this stage modules table may not exist
             try {
-                self::$modules = self::all();
+    		  self::$modules = Module::all();
             } catch (\Exception $e) {
                 // Do nothing
             }
-        }
-
-        return self::$modules;
+    	}
+    	return self::$modules;
     }
 
     public static function isActive($alias)
@@ -50,7 +48,6 @@ class Module extends Model
         if ($save) {
             $module->save();
         }
-
         return true;
     }
 
@@ -79,11 +76,9 @@ class Module extends Model
 
     /**
      * Activate module license.
-     *
-     * @param [type] $alias       [description]
-     * @param [type] $details_url [description]
-     *
-     * @return bool [description]
+     * @param  [type]  $alias       [description]
+     * @param  [type]  $details_url [description]
+     * @return boolean              [description]
      */
     public static function activateLicense($alias, $license)
     {
@@ -105,10 +100,9 @@ class Module extends Model
     {
         $module = self::getByAlias($alias);
         if (!$module) {
-            $module = new self();
+            $module = new Module();
             $module->alias = $alias;
         }
-
         return $module;
     }
 
@@ -136,7 +130,7 @@ class Module extends Model
         if ($modules) {
             return self::getCached()->where('alias', $alias)->first();
         } else {
-            return;
+            return null;
         }
     }
 

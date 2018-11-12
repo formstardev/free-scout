@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\ActivityLog;
+use App\Option;
 use App\SendLog;
 use App\Thread;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SecureController extends Controller
@@ -61,7 +63,7 @@ class SecureController extends Controller
             $activities = ActivityLog::inLog($request->name)->orderBy('created_at', 'desc')->paginate($page_size);
             $name = $request->name;
         } elseif (count($names)) {
-            $name = ActivityLog::NAME_OUT_EMAILS;
+            $name =  ActivityLog::NAME_OUT_EMAILS;
             // $activities = ActivityLog::inLog($names[0])->orderBy('created_at', 'desc')->paginate($page_size);
             // $name = $names[0];
         }
@@ -111,11 +113,12 @@ class SecureController extends Controller
             $activities = SendLog::orderBy('created_at', 'desc')->paginate($page_size);
 
             foreach ($activities as $record) {
+
                 $conversation = '';
                 if ($record->thread_id) {
                     $conversation = Thread::find($record->thread_id);
                 }
-
+                
                 $status = $record->getStatusName();
                 if ($record->status_message) {
                     $status .= '. '.$record->status_message;
@@ -131,6 +134,7 @@ class SecureController extends Controller
                     'customer'      => $record->customer,
                 ];
             }
+
         }
 
         array_unshift($names, ActivityLog::NAME_OUT_EMAILS);
@@ -141,16 +145,16 @@ class SecureController extends Controller
         }
 
         return view('secure/logs', [
-            'logs'         => $logs,
-            'names'        => $names,
+            'logs' => $logs, 
+            'names' => $names,
             'current_name' => $name,
-            'cols'         => $cols,
-            'activities'   => $activities,
+            'cols' => $cols,
+            'activities' => $activities
         ]);
     }
 
     /**
-     * Logs page submitted.
+     * Logs page submitted
      */
     public function logsSubmit(Request $request)
     {
@@ -161,7 +165,7 @@ class SecureController extends Controller
             $activities = ActivityLog::inLog($request->name)->orderBy('created_at', 'desc')->get();
             $name = $request->name;
         } elseif (count($names = ActivityLog::select('log_name')->distinct()->get()->pluck('log_name'))) {
-            $name = ActivityLog::NAME_OUT_EMAILS;
+            $name =  ActivityLog::NAME_OUT_EMAILS;
             // $activities = ActivityLog::inLog($names[0])->orderBy('created_at', 'desc')->get();
             // $name = $names[0];
         }

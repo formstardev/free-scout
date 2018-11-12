@@ -2,12 +2,11 @@
 /**
  * Send alert to super admin.
  */
-
 namespace App\Jobs;
 
-use App\Mail\Alert;
 use App\SendLog;
 use App\User;
+use App\Mail\Alert;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -42,7 +41,7 @@ class SendAlert implements ShouldQueue
     {
         // Configure mail driver according to Mailbox settings
         \MailHelper::setSystemMailDriver();
-
+        
         $recipients = [];
 
         $super_admin = User::getSuperAdmin();

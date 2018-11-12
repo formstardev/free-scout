@@ -1,8 +1,7 @@
 <?php
 /**
- * todo: implement caching by saving all options in one cache variable on register_shutdown_function.
+ * todo: implement caching by saving all options in one cache variable on register_shutdown_function
  */
-
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
@@ -24,10 +23,9 @@ class Option extends Model
     /**
      * Set an option.
      *
-     * @param string $name
-     * @param string $value
-     *
-     * @return bool
+     * @param   string $name
+     * @param   string $value
+     * @return  boolean
      */
     public static function set($name, $value)
     {
@@ -47,7 +45,7 @@ class Option extends Model
 
         $serialized_value = self::maybeSerialize($value);
 
-        $option = self::firstOrCreate(
+        $option = Option::firstOrCreate(
             ['name' => $name], ['value' => $serialized_value]
         );
 
@@ -64,13 +62,12 @@ class Option extends Model
     /**
      * Get option.
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return string
      */
     public static function get($name, $default = false, $decode = true)
     {
-        // If not passed, get default value from config
+        // If not passed, get default value from config 
         if (func_num_args() == 1) {
             $default = self::getDefault($name, $default);
         }
@@ -79,7 +76,7 @@ class Option extends Model
             return self::$cache[$name];
         }
 
-        $option = self::where('name', (string) $name)->first();
+        $option = Option::where('name', (string)$name)->first();
         if ($option) {
             if ($decode) {
                 $value = self::maybeUnserialize($option->value);
@@ -97,6 +94,7 @@ class Option extends Model
 
     public static function getDefault($option_name, $default)
     {
+
         $options = \Config::get('app.options');
 
         if (isset($options[$option_name]) && isset($options[$option_name]['default'])) {
@@ -108,18 +106,16 @@ class Option extends Model
 
     public static function remove($name)
     {
-        self::where('name', (string) $name)->delete();
+        Option::where('name', (string)$name)->delete();
     }
 
     /**
      * Serialize data, if needed.
      */
-    public static function maybeSerialize($data)
-    {
+    public static function maybeSerialize($data) {
         if (is_array($data) || is_object($data)) {
-            return serialize($data);
+            return serialize( $data );
         }
-
         return $data;
     }
 
@@ -134,10 +130,8 @@ class Option extends Model
             } catch (\Exception $e) {
                 // Do nothing
             }
-
             return $original;
         }
-
         return $original;
     }
 
@@ -145,17 +139,16 @@ class Option extends Model
      * Check value to find if it was serialized.
      * Serialized data is always a string.
      */
-    public static function isSerialized($data, $strict = true)
-    {
+    public static function isSerialized($data, $strict = true) {
         // if it isn't a string, it isn't serialized.
-        if (!is_string($data)) {
+        if (!is_string($data )) {
             return false;
         }
         $data = trim($data);
         if ('N;' == $data) {
             return true;
         }
-        if (strlen($data) < 4) {
+        if (strlen( $data ) < 4) {
             return false;
         }
         if (':' !== $data[1]) {
@@ -168,41 +161,36 @@ class Option extends Model
             }
         } else {
             $semicolon = strpos($data, ';');
-            $brace = strpos($data, '}');
+            $brace     = strpos($data, '}');
             // Either ; or } must exist.
-            if (false === $semicolon && false === $brace) {
+            if (false === $semicolon && false === $brace)
                 return false;
-            }
             // But neither must be in the first X characters.
-            if (false !== $semicolon && $semicolon < 3) {
+            if (false !== $semicolon && $semicolon < 3)
                 return false;
-            }
-            if (false !== $brace && $brace < 4) {
+            if (false !== $brace && $brace < 4)
                 return false;
-            }
         }
         $token = $data[0];
         switch ($token) {
-            case 's':
+            case 's' :
                 if ($strict) {
-                    if ('"' !== substr($data, -2, 1)) {
+                    if ('"' !== substr( $data, -2, 1)) {
                         return false;
                     }
-                } elseif (false === strpos($data, '"')) {
+                } elseif (false === strpos( $data, '"')) {
                     return false;
                 }
                 // or else fall through
-            case 'a':
-            case 'O':
-                return (bool) preg_match("/^{$token}:[0-9]+:/s", $data);
-            case 'b':
-            case 'i':
-            case 'd':
+            case 'a' :
+            case 'O' :
+                return (bool)preg_match("/^{$token}:[0-9]+:/s", $data);
+            case 'b' :
+            case 'i' :
+            case 'd' :
                 $end = $strict ? '$' : '';
-
-                return (bool) preg_match("/^{$token}:[0-9.E-]+;$end/", $data);
+                return (bool)preg_match("/^{$token}:[0-9.E-]+;$end/", $data);
         }
-
         return false;
     }
 

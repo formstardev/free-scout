@@ -2,7 +2,12 @@
 
 namespace App\Mail;
 
+use App\Option;
+use Illuminate\Bus\Queueable;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 
 class PasswordChanged extends Mailable
 {
@@ -13,6 +18,7 @@ class PasswordChanged extends Mailable
 
     /**
      * Create a new message instance.
+     *
      */
     public function __construct($user)
     {

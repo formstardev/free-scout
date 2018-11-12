@@ -2,7 +2,6 @@
 /**
  * Website notification (DB notification).
  */
-
 namespace App\Notifications;
 
 use App\Conversation;
@@ -29,8 +28,7 @@ class WebsiteNotification extends Notification
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $user
-     *
+     * @param  mixed  $user
      * @return array
      */
     public function via($user)
@@ -41,14 +39,13 @@ class WebsiteNotification extends Notification
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $user
-     *
+     * @param  mixed  $user
      * @return array
      */
     public function toArray($user)
     {
         return [
-            'thread_id'       => $this->thread->id,
+            'thread_id' => $this->thread->id,
             'conversation_id' => $this->conversation->id,
         ];
     }
@@ -97,6 +94,7 @@ class WebsiteNotification extends Notification
 
         // Populate all collected data into array
         foreach ($notifications as $notification) {
+
             $conversation_number = '';
             if (!empty($notification->data['number'])) {
                 $conversation_number = $notification->data['number'];

@@ -1,10 +1,10 @@
 <?php
 /**
- * Table stores conversations which user marked as starred.
+ * Table stores conversations which user marked as starred
  */
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateConversationFolderTable extends Migration
 {

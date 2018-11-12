@@ -52,7 +52,6 @@ class ModuleBuild extends Command
             }
             if (!$modules_aliases) {
                 $this->error('No modules found');
-
                 return;
             }
             $all = true;
@@ -71,7 +70,6 @@ class ModuleBuild extends Command
             $module = \Module::findByAlias($module_alias);
             if (!$module) {
                 $this->error('Module with the specified alias not found: '.$module_alias);
-
                 return;
             }
             $this->buildModule($module);
@@ -86,7 +84,6 @@ class ModuleBuild extends Command
         $public_symlink = public_path('modules').DIRECTORY_SEPARATOR.$module->alias;
         if (!file_exists($public_symlink)) {
             $this->error('Public symlink ['.$public_symlink.'] not found. Run module installation command first: php artisan freescout:module-install');
-
             return;
         }
 
@@ -111,6 +108,7 @@ class ModuleBuild extends Command
             }
 
             $this->info("Created: {$file_path}");
+
         } catch (\Exception $e) {
             $this->error($e->getMessage());
         }

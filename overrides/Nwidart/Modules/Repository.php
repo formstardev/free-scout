@@ -43,16 +43,9 @@ abstract class Repository implements RepositoryInterface, Countable
     protected $stubPath;
 
     /**
-     * Cache in memory.
-     *
-     * @var [type]
-     */
-    protected $cache;
-
-    /**
      * The constructor.
      *
-     * @param Container   $app
+     * @param Container $app
      * @param string|null $path
      */
     public function __construct(Container $app, $path = null)
@@ -81,7 +74,6 @@ abstract class Repository implements RepositoryInterface, Countable
      * @param string $path
      *
      * @return $this
-     *
      * @deprecated
      */
     public function addPath($path)
@@ -122,12 +114,11 @@ abstract class Repository implements RepositoryInterface, Countable
     }
 
     /**
-     * Creates a new Module instance.
-     *
+     * Creates a new Module instance
+     * 
      * @param Container $app
      * @param $name
      * @param $path
-     *
      * @return \Nwidart\Modules\Module
      */
     abstract protected function createModule(...$args);
@@ -154,10 +145,10 @@ abstract class Repository implements RepositoryInterface, Countable
                 $modules[$name] = $this->createModule($this->app, $name, dirname($manifest));
 
                 // Overwrite module `active` flag with value from DB modules table.
-                // Configuration is cached right when freescout:clear-cache is executed.
+                // Configuration is cached right when freescout:clear-cache is executed.                
                 $alias = $modules[$name]->getAlias();
                 if ($alias) {
-                    $modules[$name]->json()->set('active', (int) \App\Module::isActive($alias));
+                    $modules[$name]->json()->set('active', (int)\App\Module::isActive($alias));
                 }
             }
         }
@@ -184,7 +175,6 @@ abstract class Repository implements RepositoryInterface, Countable
      */
     public function clearCache()
     {
-        $this->cache = null;
         $this->app['cache']->forget($this->config('cache.key'));
     }
 
@@ -200,7 +190,7 @@ abstract class Repository implements RepositoryInterface, Countable
         $modules = [];
 
         foreach ($cached as $name => $module) {
-            $path = $module['path'];
+            $path = $module["path"];
 
             $modules[$name] = $this->createModule($this->app, $name, $path);
         }
@@ -215,10 +205,6 @@ abstract class Repository implements RepositoryInterface, Countable
      */
     public function getCached()
     {
-        if ($this->cache) {
-            return $this->cache;
-        }
-
         return $this->app['cache']->remember($this->config('cache.key'), $this->config('cache.lifetime'), function () {
 
             // By some reason when Nwidart\Modules\Module is converted into array
@@ -226,12 +212,9 @@ abstract class Repository implements RepositoryInterface, Countable
             // Set `active` flag from DB for each module
             foreach ($array as $key => $item) {
                 if (!empty($item['alias'])) {
-                    $item['active'] = (int) \App\Module::isActive($item['alias']);
+                    $item['active'] = (int)\App\Module::isActive($item['alias']);
                 }
             }
-
-            // Remember in memory cache to avoid reading cache file
-            $this->cache = $array;
 
             return $array;
         });
@@ -367,9 +350,7 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Find a specific module.
-     *
      * @param $name
-     *
      * @return mixed|void
      */
     public function find($name)
@@ -379,50 +360,33 @@ abstract class Repository implements RepositoryInterface, Countable
                 return $module;
             }
         }
+
+        return;
     }
 
     /**
      * Find a specific module by its alias.
-     *
      * @param $alias
-     *
      * @return mixed|void
      */
     public function findByAlias($alias)
     {
         foreach ($this->all() as $module) {
             if (strtolower($module->getAlias()) === $alias) {
-                //if ($module->getAlias() === $alias) {
+            //if ($module->getAlias() === $alias) {
                 return $module;
             }
         }
-    }
 
-    /**
-     * Check by alias if module is active.
-     *
-     * @param [type] $alias [description]
-     *
-     * @return bool [description]
-     */
-    public function isActive($alias)
-    {
-        $module = $this->findByAlias($alias);
-        if ($module && $module->active()) {
-            return true;
-        } else {
-            return false;
-        }
+        return;
     }
 
     /**
      * Find all modules that are required by a module. If the module cannot be found, throw an exception.
      *
      * @param $name
-     *
-     * @throws ModuleNotFoundException
-     *
      * @return array
+     * @throws ModuleNotFoundException
      */
     public function findRequirements($name)
     {
@@ -439,11 +403,8 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Alternative for "find" method.
-     *
      * @param $name
-     *
      * @return mixed|void
-     *
      * @deprecated
      */
     public function get($name)
@@ -456,9 +417,9 @@ abstract class Repository implements RepositoryInterface, Countable
      *
      * @param $name
      *
-     * @throws ModuleNotFoundException
-     *
      * @return Module
+     *
+     * @throws ModuleNotFoundException
      */
     public function findOrFail($name)
     {
@@ -493,9 +454,9 @@ abstract class Repository implements RepositoryInterface, Countable
     public function getModulePath($module)
     {
         try {
-            return $this->findOrFail($module)->getPath().'/';
+            return $this->findOrFail($module)->getPath() . '/';
         } catch (ModuleNotFoundException $e) {
-            return $this->getPath().'/'.Str::studly($module).'/';
+            return $this->getPath() . '/' . Str::studly($module) . '/';
         }
     }
 
@@ -508,20 +469,20 @@ abstract class Repository implements RepositoryInterface, Countable
      */
     public function assetPath($module) : string
     {
-        return $this->config('paths.assets').'/'.$module;
+        return $this->config('paths.assets') . '/' . $module;
     }
 
     /**
      * Get a specific config data from a configuration file.
      *
      * @param $key
-     * @param null $default
      *
+     * @param null $default
      * @return mixed
      */
     public function config($key, $default = null)
     {
-        return $this->app['config']->get('modules.'.$key, $default);
+        return $this->app['config']->get('modules.' . $key, $default);
     }
 
     /**
@@ -570,10 +531,8 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get module used for cli session.
-     *
-     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
      * @return string
+     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
      */
     public function getUsedNow() : string
     {
@@ -584,7 +543,6 @@ abstract class Repository implements RepositoryInterface, Countable
      * Get used now.
      *
      * @return string
-     *
      * @deprecated
      */
     public function getUsed()
@@ -614,12 +572,9 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get asset url from a specific module.
-     *
      * @param string $asset
-     *
-     * @throws InvalidAssetPath
-     *
      * @return string
+     * @throws InvalidAssetPath
      */
     public function asset($asset) : string
     {
@@ -628,9 +583,9 @@ abstract class Repository implements RepositoryInterface, Countable
         }
         list($name, $url) = explode(':', $asset);
 
-        $baseUrl = str_replace(public_path().DIRECTORY_SEPARATOR, '', $this->getAssetsPath());
+        $baseUrl = str_replace(public_path() . DIRECTORY_SEPARATOR, '', $this->getAssetsPath());
 
-        $url = $this->app['url']->asset($baseUrl."/{$name}/".$url);
+        $url = $this->app['url']->asset($baseUrl . "/{$name}/" . $url);
 
         return str_replace(['http://', 'https://'], '//', $url);
     }
@@ -661,12 +616,9 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Enabling a specific module.
-     *
      * @param string $name
-     *
-     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
      * @return void
+     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
      */
     public function enable($name)
     {
@@ -675,12 +627,9 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Disabling a specific module.
-     *
      * @param string $name
-     *
-     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
      * @return void
+     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
      */
     public function disable($name)
     {
@@ -689,12 +638,9 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Delete a specific module.
-     *
      * @param string $name
-     *
-     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
      * @return bool
+     * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
      */
     public function delete($name) : bool
     {
@@ -758,40 +704,5 @@ abstract class Repository implements RepositoryInterface, Countable
         $this->stubPath = $stubPath;
 
         return $this;
-    }
-
-    /**
-     * Get module option.
-     *
-     * @param [type] $module_alias [description]
-     * @param [type] $option_name  [description]
-     * @param bool   $default      [description]
-     *
-     * @return [type] [description]
-     */
-    public function getOption($module_alias, $option_name, $default = false)
-    {
-        // If not passed, get default value from config
-        if (func_num_args() == 2) {
-            $options = \Config::get(strtolower($module_alias).'.options');
-
-            if (isset($options[$option_name]) && isset($options[$option_name]['default'])) {
-                $default = $options[$option_name]['default'];
-            }
-        }
-
-        return \Option::get($module_alias.'.'.$option_name, $default);
-    }
-
-    /**
-     * Set module option.
-     *
-     * @param [type] $module_alias [description]
-     * @param [type] $option_name  [description]
-     * @param [type] $option_value [description]
-     */
-    public function setOption($module_alias, $option_name, $option_value)
-    {
-        return \Option::set(strtolower($module_alias).'.'.$option_name, $option_value);
     }
 }

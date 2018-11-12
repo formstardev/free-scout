@@ -25,16 +25,18 @@ class PermissionsChecker
      * Check for the folders permissions.
      *
      * @param array $folders
-     *
      * @return array
      */
     public function check(array $folders)
     {
-        foreach ($folders as $folder => $permission) {
+        foreach($folders as $folder => $permission)
+        {
             //if(!($this->getPermission($folder) >= $permission))
-            if (!$this->isWritable($folder)) {
+            if (!$this->isWritable($folder))
+            {
                 $this->addFileAndSetErrors($folder, $permission, false);
-            } else {
+            }
+            else {
                 $this->addFile($folder, $permission, true);
             }
         }
@@ -46,7 +48,6 @@ class PermissionsChecker
      * Get a folder permission.
      *
      * @param $folder
-     *
      * @return string
      */
     private function getPermission($folder)
@@ -56,10 +57,8 @@ class PermissionsChecker
 
     /**
      * Check if folder is writable by creating a temp file.
-     *
-     * @param [type] $folder [description]
-     *
-     * @return [type] [description]
+     * @param  [type] $folder [description]
+     * @return [type]         [description]
      */
     private function isWritable($folder)
     {
@@ -72,7 +71,6 @@ class PermissionsChecker
             $file = $path.'.installer_test';
             if ($file && file_put_contents($file, 'test')) {
                 unlink($file);
-
                 return true;
             } else {
                 return false;
@@ -92,9 +90,9 @@ class PermissionsChecker
     private function addFile($folder, $permission, $isSet)
     {
         array_push($this->results['permissions'], [
-            'folder'     => $folder,
+            'folder' => $folder,
             'permission' => $permission,
-            'isSet'      => $isSet,
+            'isSet' => $isSet
         ]);
     }
 

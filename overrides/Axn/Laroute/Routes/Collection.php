@@ -2,7 +2,6 @@
 /**
  * Overriding vendor class to generate routes for modules.
  */
-
 namespace Axn\Laroute\Routes;
 
 use Illuminate\Routing\Route;
@@ -44,29 +43,30 @@ class Collection extends BaseCollection
         $data = parent::getRouteInformation($route, $filter, $namespace);
 
         if (!$data || empty($data['name'])) {
-            return;
+            return null;
         }
 
         // If `module` parameter is set for the route we choose only routes from this module
         $action = $route->getAction();
 
         if ($action && !empty($action['controller'])) {
+
             preg_match('/^Modules\\\([^\\\]+)\\\/', $action['controller'], $m);
 
             if (!empty($m[1])) {
                 if (!$this->module) {
                     // We are generating routes for the main application,
                     // missing route of the module
-                    return;
+                    return null;
                 } else {
                     // Route belongs to another module
                     if ($this->module != strtolower($m[1])) {
-                        return;
+                        return null;
                     }
                 }
             } elseif ($this->module) {
                 // Include only module routes into module JS file
-                return;
+                return null;
             }
         }
 

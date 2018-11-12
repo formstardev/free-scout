@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Email;
 use Illuminate\Database\Eloquent\Model;
 use Watson\Rememberable\Rememberable;
 
@@ -663,7 +664,7 @@ class Customer extends Model
     {
         $email = Email::sanitizeEmail($email);
         if (!$email) {
-            return;
+            return null;
         }
         $email_obj = Email::where('email', $email)->first();
         if ($email_obj) {

@@ -3,10 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Input;
 
 class ConversationFolder extends Model
 {
-    /**
+	/**
      * The table associated with the model.
      *
      * @var string

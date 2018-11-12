@@ -17,69 +17,71 @@ use Webklex\IMAP\Support\AttachmentCollection;
 use Webklex\IMAP\Support\FlagCollection;
 
 /**
- * Class Message.
+ * Class Message
+ *
+ * @package Webklex\IMAP
  */
-class Message
-{
+class Message {
+
     /**
-     * Client instance.
+     * Client instance
      *
      * @var Client
      */
     private $client = Client::class;
 
     /**
-     * U ID.
+     * U ID
      *
-     * @var int
+     * @var integer
      */
     public $uid = '';
 
     /**
-     * Fetch body options.
+     * Fetch body options
      *
-     * @var int
+     * @var integer
      */
     public $fetch_options = null;
 
     /**
-     * Fetch body options.
+     * Fetch body options
      *
      * @var bool
      */
     public $fetch_body = null;
 
     /**
-     * Fetch attachments options.
+     * Fetch attachments options
      *
      * @var bool
      */
     public $fetch_attachment = null;
 
     /**
-     * Fetch flags options.
+     * Fetch flags options
      *
      * @var bool
      */
     public $fetch_flags = null;
-
+    
     /**
-     * @var int
+     * @var int $msglist
      */
     public $msglist = 1;
 
     /**
-     * @var int
+     * @var int $msgn
      */
     public $msgn = null;
 
     /**
-     * @var string
+     * @var string $header
      */
     public $header = null;
 
     /**
-     * @var null|object
+     * @var null|object $header_info
      */
     public $header_info = null;
 
@@ -87,22 +89,22 @@ class Message
     public $raw_body = null;
 
     /**
-     * Message header components.
+     * Message header components
      *
-     * @var string
-     * @var mixed  $message_no
-     * @var string $subject
-     * @var mixed  $references
-     * @var mixed  $date
-     * @var array  $from
-     * @var array  $to
-     * @var array  $cc
-     * @var array  $bcc
-     * @var array  $reply_to
-     * @var string $in_reply_to
-     * @var array  $sender
-     * @var array  $flags
-     * @var array  $priority
+     * @var string  $message_id
+     * @var mixed   $message_no
+     * @var string  $subject
+     * @var mixed   $references
+     * @var mixed   $date
+     * @var array   $from
+     * @var array   $to
+     * @var array   $cc
+     * @var array   $bcc
+     * @var array   $reply_to
+     * @var string  $in_reply_to
+     * @var array   $sender
+     * @var array   $flags
+     * @var array   $priority
      */
     public $message_id = '';
     public $message_no = null;
@@ -119,9 +121,9 @@ class Message
     public $priority = 0;
 
     /**
-     * Message body components.
+     * Message body components
      *
-     * @var array
+     * @var array   $bodies
      * @var AttachmentCollection|array $attachments
      * @var FlagCollection|array       $flags
      */
@@ -130,7 +132,7 @@ class Message
     public $flags = [];
 
     /**
-     * Message const.
+     * Message const
      *
      * @const integer   TYPE_TEXT
      * @const integer   TYPE_MULTIPART
@@ -162,18 +164,17 @@ class Message
     /**
      * Message constructor.
      *
-     * @param int      $uid
-     * @param int|null $msglist
-     * @param Client   $client
-     * @param int|null $fetch_options
-     * @param bool     $fetch_body
-     * @param bool     $fetch_attachment
-     * @param bool     $fetch_flags
+     * @param integer       $uid
+     * @param integer|null  $msglist
+     * @param Client        $client
+     * @param integer|null  $fetch_options
+     * @param boolean       $fetch_body
+     * @param boolean       $fetch_attachment
+     * @param boolean       $fetch_flags
      *
      * @throws Exceptions\ConnectionFailedException
      */
-    public function __construct($uid, $msglist, Client $client, $fetch_options = null, $fetch_body = false, $fetch_attachment = false, $fetch_flags = false)
-    {
+    public function __construct($uid, $msglist, Client $client, $fetch_options = null, $fetch_body = false, $fetch_attachment = false, $fetch_flags = false) {
         $this->setFetchOption($fetch_options);
         $this->setFetchBodyOption($fetch_body);
         $this->setFetchAttachmentOption($fetch_attachment);
@@ -185,11 +186,11 @@ class Message
         $this->msglist = $msglist;
         $this->client = $client;
 
-        $this->uid = ($this->fetch_options == FT_UID) ? $uid : $uid;
+        $this->uid =  ($this->fetch_options == FT_UID) ? $uid : $uid;
         $this->msgn = ($this->fetch_options == FT_UID) ? imap_msgno($this->client->getConnection(), $uid) : $uid;
 
         $this->parseHeader();
-
+        
         if ($this->getFetchFlagsOption() === true) {
             $this->parseFlags();
         }
@@ -200,52 +201,46 @@ class Message
     }
 
     /**
-     * Copy the current Messages to a mailbox.
+     * Copy the current Messages to a mailbox
      *
      * @param $mailbox
      * @param int $options
      *
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return bool
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function copy($mailbox, $options = 0)
-    {
+    public function copy($mailbox, $options = 0) {
         return imap_mail_copy($this->client->getConnection(), $this->msglist, $mailbox, $options);
     }
 
     /**
-     * Move the current Messages to a mailbox.
+     * Move the current Messages to a mailbox
      *
      * @param $mailbox
      * @param int $options
      *
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return bool
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function move($mailbox, $options = 0)
-    {
+    public function move($mailbox, $options = 0) {
         return imap_mail_move($this->client->getConnection(), $this->msglist, $mailbox, $options);
     }
 
     /**
-     * Check if the Message has a text body.
+     * Check if the Message has a text body
      *
      * @return bool
      */
-    public function hasTextBody()
-    {
+    public function hasTextBody() {
         return isset($this->bodies['text']);
     }
 
     /**
-     * Get the Message text body.
+     * Get the Message text body
      *
      * @return mixed
      */
-    public function getTextBody()
-    {
+    public function getTextBody() {
         if (!isset($this->bodies['text'])) {
             return false;
         }
@@ -254,31 +249,29 @@ class Message
     }
 
     /**
-     * Check if the Message has a html body.
+     * Check if the Message has a html body
      *
      * @return bool
      */
-    public function hasHTMLBody()
-    {
+    public function hasHTMLBody() {
         return isset($this->bodies['html']);
     }
 
     /**
-     * Get the Message html body.
+     * Get the Message html body
      *
-     * @var bool
+     * @var bool $replaceImages
      *
      * @return mixed
      */
-    public function getHTMLBody($replaceImages = false)
-    {
+    public function getHTMLBody($replaceImages = false) {
         if (!isset($this->bodies['html'])) {
             return false;
         }
 
         $body = $this->bodies['html']->content;
         if ($replaceImages) {
-            $this->attachments->each(function ($oAttachment) use (&$body) {
+            $this->attachments->each(function($oAttachment) use(&$body) {
                 if ($oAttachment->id && isset($oAttachment->img_src)) {
                     $body = str_replace('cid:'.$oAttachment->id, $oAttachment->img_src, $body);
                 }
@@ -289,35 +282,33 @@ class Message
     }
 
     /**
-     * Parse all defined headers.
-     *
-     * @throws Exceptions\ConnectionFailedException
+     * Parse all defined headers
      *
      * @return void
+     * @throws Exceptions\ConnectionFailedException
      */
-    private function parseHeader()
-    {
+    private function parseHeader() {
         $this->header = $header = imap_fetchheader($this->client->getConnection(), $this->uid, FT_UID);
         if ($this->header) {
             $header = imap_rfc822_parse_headers($this->header);
         }
 
-        if (preg_match('/x\-priority\:.*([0-9]{1,2})/i', $this->header, $priority)) {
+        if(preg_match('/x\-priority\:.*([0-9]{1,2})/i', $this->header, $priority)){
             $priority = isset($priority[1]) ? (int) $priority[1] : 0;
-            switch ($priority) {
-                case self::PRIORITY_HIGHEST:
+            switch($priority){
+                case self::PRIORITY_HIGHEST;
                     $this->priority = self::PRIORITY_HIGHEST;
                     break;
-                case self::PRIORITY_HIGH:
+                case self::PRIORITY_HIGH;
                     $this->priority = self::PRIORITY_HIGH;
                     break;
-                case self::PRIORITY_NORMAL:
+                case self::PRIORITY_NORMAL;
                     $this->priority = self::PRIORITY_NORMAL;
                     break;
-                case self::PRIORITY_LOW:
+                case self::PRIORITY_LOW;
                     $this->priority = self::PRIORITY_LOW;
                     break;
-                case self::PRIORITY_LOWEST:
+                case self::PRIORITY_LOWEST;
                     $this->priority = self::PRIORITY_LOWEST;
                     break;
                 default:
@@ -333,12 +324,12 @@ class Message
         if (property_exists($header, 'date')) {
             $date = $header->date;
 
-            /*
+            /**
              * Exception handling for invalid dates
              * Will be extended in the future
              *
              * Currently known invalid formats:
-             * ^ Datetime                                   ^ Problem                           ^ Cause
+             * ^ Datetime                                   ^ Problem                           ^ Cause                 
              * | Mon, 20 Nov 2017 20:31:31 +0800 (GMT+8:00) | Double timezone specification     | A Windows feature
              * |                                            | and invalid timezone (max 6 char) |
              * | 04 Jan 2018 10:12:47 UT                    | Missing letter "C"                | Unknown
@@ -403,14 +394,12 @@ class Message
     }
 
     /**
-     * Parse additional flags.
-     *
-     * @throws Exceptions\ConnectionFailedException
+     * Parse additional flags
      *
      * @return void
+     * @throws Exceptions\ConnectionFailedException
      */
-    private function parseFlags()
-    {
+    private function parseFlags() {
         $flags = imap_fetch_overview($this->client->getConnection(), $this->uid, FT_UID);
         if (is_array($flags) && isset($flags[0])) {
             if (property_exists($flags[0], 'recent')) {
@@ -430,19 +419,17 @@ class Message
             }
             if (property_exists($flags[0], 'draft')) {
                 $this->flags->put('draft', $flags[0]->draft);
-            }
+            }  
         }
     }
-
+    
     /**
-     * Get the current Message header info.
-     *
-     * @throws Exceptions\ConnectionFailedException
+     * Get the current Message header info
      *
      * @return object
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function getHeaderInfo()
-    {
+    public function getHeaderInfo() {
         if ($this->header_info == null) {
             $this->header_info =
             $this->header_info = imap_headerinfo($this->client->getConnection(), $this->getMessageNo());
@@ -452,14 +439,13 @@ class Message
     }
 
     /**
-     * Parse Addresses.
+     * Parse Addresses
      *
      * @param $list
      *
      * @return array
      */
-    private function parseAddresses($list)
-    {
+    private function parseAddresses($list) {
         $addresses = [];
 
         foreach ($list as $item) {
@@ -477,7 +463,7 @@ class Message
 
             // FreeScout fix
             $personalParts = imap_mime_header_decode($address->personal);
-
+            
             $address->personal = '';
             foreach ($personalParts as $p) {
                 $address->personal .= $p->text;
@@ -493,22 +479,20 @@ class Message
     }
 
     /**
-     * Parse the Message body.
-     *
-     * @throws Exceptions\ConnectionFailedException
+     * Parse the Message body
      *
      * @return $this
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function parseBody()
-    {
+    public function parseBody() {
         $structure = imap_fetchstructure($this->client->getConnection(), $this->uid, FT_UID);
 
-        if (property_exists($structure, 'parts')) {
+        if(property_exists($structure, 'parts')){
             $parts = $structure->parts;
 
-            foreach ($parts as $part) {
-                foreach ($part->parameters as $parameter) {
-                    if ($parameter->attribute == 'charset') {
+            foreach ($parts as $part)  {
+                foreach ($part->parameters as $parameter)  {
+                    if($parameter->attribute == "charset")  {
                         $encoding = $parameter->value;
                         $parameter->value = preg_replace('/Content-Transfer-Encoding/', '', $encoding);
                     }
@@ -522,21 +506,20 @@ class Message
     }
 
     /**
-     * Fetch the Message structure.
+     * Fetch the Message structure
      *
      * @param $structure
      * @param mixed $partNumber
      *
      * @throws Exceptions\ConnectionFailedException
      */
-    private function fetchStructure($structure, $partNumber = null)
-    {
+    private function fetchStructure($structure, $partNumber = null) {
         if ($structure->type == self::TYPE_TEXT &&
             ($structure->ifdisposition == 0 ||
                 ($structure->ifdisposition == 1 && !isset($structure->parts) && $partNumber == null)
             )
         ) {
-            if ($structure->subtype == 'PLAIN') {
+            if ($structure->subtype == "PLAIN") {
                 if (!$partNumber) {
                     $partNumber = 1;
                 }
@@ -547,14 +530,15 @@ class Message
                 $content = $this->decodeString($content, $structure->encoding);
                 $content = $this->convertEncoding($content, $encoding);
 
-                $body = new \stdClass();
-                $body->type = 'text';
+                $body = new \stdClass;
+                $body->type = "text";
                 $body->content = $content;
 
                 $this->bodies['text'] = $body;
 
                 $this->fetchAttachment($structure, $partNumber);
-            } elseif ($structure->subtype == 'HTML') {
+
+            } elseif ($structure->subtype == "HTML") {
                 if (!$partNumber) {
                     $partNumber = 1;
                 }
@@ -565,17 +549,17 @@ class Message
                 $content = $this->decodeString($content, $structure->encoding);
                 $content = $this->convertEncoding($content, $encoding);
 
-                $body = new \stdClass();
-                $body->type = 'html';
+                $body = new \stdClass;
+                $body->type = "html";
                 $body->content = $content;
 
                 $this->bodies['html'] = $body;
             }
         } elseif ($structure->type == self::TYPE_MULTIPART) {
             foreach ($structure->parts as $index => $subStruct) {
-                $prefix = '';
+                $prefix = "";
                 if ($partNumber) {
-                    $prefix = $partNumber.'.';
+                    $prefix = $partNumber.".";
                 }
                 $this->fetchStructure($subStruct, $prefix.($index + 1));
             }
@@ -587,15 +571,15 @@ class Message
     }
 
     /**
-     * Fetch the Message attachment.
+     * Fetch the Message attachment
      *
      * @param object $structure
      * @param mixed  $partNumber
      *
      * @throws Exceptions\ConnectionFailedException
      */
-    protected function fetchAttachment($structure, $partNumber)
-    {
+    protected function fetchAttachment($structure, $partNumber) {
+
         $oAttachment = new Attachment($this, $structure, $partNumber);
 
         if ($oAttachment->getName() !== null) {
@@ -608,33 +592,31 @@ class Message
     }
 
     /**
-     * Fail proof setter for $fetch_option.
+     * Fail proof setter for $fetch_option
      *
      * @param $option
      *
      * @return $this
      */
-    public function setFetchOption($option)
-    {
-        if (is_int($option) === true) {
+    public function setFetchOption($option) {
+        if (is_long($option) === true) {
             $this->fetch_options = $option;
         } elseif (is_null($option) === true) {
             $config = config('imap.options.fetch', FT_UID);
-            $this->fetch_options = is_int($config) ? $config : 1;
+            $this->fetch_options = is_long($config) ? $config : 1;
         }
 
         return $this;
     }
 
     /**
-     * Fail proof setter for $fetch_body.
+     * Fail proof setter for $fetch_body
      *
      * @param $option
      *
      * @return $this
      */
-    public function setFetchBodyOption($option)
-    {
+    public function setFetchBodyOption($option) {
         if (is_bool($option)) {
             $this->fetch_body = $option;
         } elseif (is_null($option)) {
@@ -646,14 +628,13 @@ class Message
     }
 
     /**
-     * Fail proof setter for $fetch_attachment.
+     * Fail proof setter for $fetch_attachment
      *
      * @param $option
      *
      * @return $this
      */
-    public function setFetchAttachmentOption($option)
-    {
+    public function setFetchAttachmentOption($option) {
         if (is_bool($option)) {
             $this->fetch_attachment = $option;
         } elseif (is_null($option)) {
@@ -663,16 +644,15 @@ class Message
 
         return $this;
     }
-
+    
     /**
-     * Fail proof setter for $fetch_flags.
+     * Fail proof setter for $fetch_flags
      *
      * @param $option
      *
      * @return $this
      */
-    public function setFetchFlagsOption($option)
-    {
+    public function setFetchFlagsOption($option) {
         if (is_bool($option)) {
             $this->fetch_flags = $option;
         } elseif (is_null($option)) {
@@ -684,15 +664,14 @@ class Message
     }
 
     /**
-     * Decode a given string.
+     * Decode a given string
      *
      * @param $string
      * @param $encoding
      *
      * @return string
      */
-    public function decodeString($string, $encoding)
-    {
+    public function decodeString($string, $encoding) {
         switch ($encoding) {
             case self::ENC_7BIT:
                 return $string;
@@ -710,9 +689,9 @@ class Message
                 return $string;
         }
     }
-
+    
     /**
-     * Convert the encoding.
+     * Convert the encoding
      *
      * @param $str
      * @param string $from
@@ -720,17 +699,16 @@ class Message
      *
      * @return mixed|string
      */
-    public function convertEncoding($str, $from = 'ISO-8859-2', $to = 'UTF-8')
-    {
-
+    public function convertEncoding($str, $from = "ISO-8859-2", $to = "UTF-8") {
+        
         // FreeScout fix
         // We don't need to do convertEncoding() if charset is ASCII (us-ascii):
         //     ASCII is a subset of UTF-8, so all ASCII files are already UTF-8 encoded
         //     https://stackoverflow.com/a/11303410
-        //
+        // 
         // us-ascii is the same as ASCII:
-        //     ASCII is the traditional name for the encoding system; the Internet Assigned Numbers Authority (IANA)
-        //     prefers the updated name US-ASCII, which clarifies that this system was developed in the US and
+        //     ASCII is the traditional name for the encoding system; the Internet Assigned Numbers Authority (IANA) 
+        //     prefers the updated name US-ASCII, which clarifies that this system was developed in the US and 
         //     based on the typographical symbols predominantly in use there.
         //     https://en.wikipedia.org/wiki/ASCII
         //
@@ -745,27 +723,25 @@ class Message
             if (!$from) {
                 return mb_convert_encoding($str, $to);
             }
-
             return mb_convert_encoding($str, $to, $from);
         }
     }
 
     /**
-     * Get the encoding of a given abject.
+     * Get the encoding of a given abject
      *
      * @param object|string $structure
      *
      * @return string
      */
-    public function getEncoding($structure)
-    {
+    public function getEncoding($structure) {
         if (property_exists($structure, 'parameters')) {
             foreach ($structure->parameters as $parameter) {
-                if (strtolower($parameter->attribute) == 'charset') {
+                if (strtolower($parameter->attribute) == "charset") {
                     return EncodingAliases::get($parameter->value);
                 }
             }
-        } elseif (is_string($structure) === true) {
+        }elseif (is_string($structure) === true){
             return mb_detect_encoding($structure);
         }
 
@@ -777,21 +753,19 @@ class Message
      *
      * @param null|Folder $folder where to start searching from (top-level inbox by default)
      *
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return null|Folder
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function getContainingFolder(Folder $folder = null)
-    {
+    public function getContainingFolder(Folder $folder = null) {
         $folder = $folder ?: $this->client->getFolders()->first();
         $this->client->checkConnection();
 
         // Try finding the message by uid in the current folder
-        $client = new Client();
+        $client = new Client;
         $client->openFolder($folder);
         $uidMatches = imap_fetch_overview($client->getConnection(), $this->uid, FT_UID);
         $uidMatch = count($uidMatches)
-            ? new self($uidMatches[0]->uid, $uidMatches[0]->msgno, $client)
+            ? new Message($uidMatches[0]->uid, $uidMatches[0]->msgno, $client)
             : null;
         $client->disconnect();
 
@@ -812,58 +786,46 @@ class Message
         }
 
         // or signalling that the message was not found in any folder
+        return null;
     }
 
     /**
-     * Move the Message into an other Folder.
-     *
+     * Move the Message into an other Folder
      * @param string $mailbox
      *
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return bool
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function moveToFolder($mailbox = 'INBOX')
-    {
+    public function moveToFolder($mailbox = 'INBOX') {
         $this->client->createFolder($mailbox);
 
         return imap_mail_move($this->client->getConnection(), $this->uid, $mailbox, CP_UID);
     }
 
     /**
-     * Delete the current Message.
-     *
+     * Delete the current Message
      * @param bool $expunge
      *
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return bool
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function delete($expunge = true)
-    {
+    public function delete($expunge = true) {
         $status = imap_delete($this->client->getConnection(), $this->uid, FT_UID);
-        if ($expunge) {
-            $this->client->expunge();
-        }
+        if($expunge) $this->client->expunge();
 
         return $status;
     }
 
     /**
-     * Restore a deleted Message.
-     *
-     * @param bool $expunge
-     *
-     * @throws Exceptions\ConnectionFailedException
+     * Restore a deleted Message
+     * @param boolean $expunge
      *
      * @return bool
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function restore($expunge = true)
-    {
+    public function restore($expunge = true) {
         $status = imap_undelete($this->client->getConnection(), $this->uid, FT_UID);
-        if ($expunge) {
-            $this->client->expunge();
-        }
+        if($expunge) $this->client->expunge();
 
         return $status;
     }
@@ -873,33 +835,28 @@ class Message
      *
      * @return AttachmentCollection
      */
-    public function getAttachments()
-    {
+    public function getAttachments() {
         return $this->attachments;
     }
 
     /**
-     * Checks if there are any attachments present.
+     * Checks if there are any attachments present
      *
-     * @return bool
+     * @return boolean
      */
-    public function hasAttachments()
-    {
+    public function hasAttachments() {
         return $this->attachments->isEmpty() === false;
     }
 
     /**
-     * Set a given flag.
-     *
+     * Set a given flag
      * @param string|array $flag
      *
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return bool
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function setFlag($flag)
-    {
-        $flag = '\\'.trim(is_array($flag) ? implode(' \\', $flag) : $flag);
+    public function setFlag($flag) {
+        $flag = "\\".trim(is_array($flag) ? implode(" \\", $flag) : $flag);
         $status = imap_setflag_full($this->client->getConnection(), $this->getUid(), $flag, SE_UID);
         $this->parseFlags();
 
@@ -907,17 +864,14 @@ class Message
     }
 
     /**
-     * Unset a given flag.
-     *
+     * Unset a given flag
      * @param string|array $flag
      *
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return bool
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function unsetFlag($flag)
-    {
-        $flag = '\\'.trim(is_array($flag) ? implode(' \\', $flag) : $flag);
+    public function unsetFlag($flag) {
+        $flag = "\\".trim(is_array($flag) ? implode(" \\", $flag) : $flag);
         $status = imap_clearflag_full($this->client->getConnection(), $this->getUid(), $flag, SE_UID);
         $this->parseFlags();
 
@@ -925,12 +879,10 @@ class Message
     }
 
     /**
-     * @throws Exceptions\ConnectionFailedException
-     *
      * @return null|object|string
+     * @throws Exceptions\ConnectionFailedException
      */
-    public function getRawBody()
-    {
+    public function getRawBody() {
         if ($this->raw_body === null) {
             $this->raw_body = imap_fetchbody($this->client->getConnection(), $this->getUid(), '', $this->fetch_options | FT_UID);
         }
@@ -941,184 +893,161 @@ class Message
     /**
      * @return string
      */
-    public function getHeader()
-    {
+    public function getHeader() {
         return $this->header;
     }
 
     /**
      * @return Client
      */
-    public function getClient()
-    {
+    public function getClient() {
         return $this->client;
     }
 
     /**
-     * @return int
+     * @return integer
      */
-    public function getUid()
-    {
+    public function getUid() {
         return $this->uid;
     }
 
     /**
-     * @return int
+     * @return integer
      */
-    public function getFetchOptions()
-    {
+    public function getFetchOptions() {
         return $this->fetch_options;
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
-    public function getFetchBodyOption()
-    {
+    public function getFetchBodyOption() {
         return $this->fetch_body;
     }
 
     /**
-     * @return int
+     * @return integer
      */
-    public function getPriority()
-    {
+    public function getPriority() {
         return $this->priority;
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
-    public function getFetchAttachmentOption()
-    {
+    public function getFetchAttachmentOption() {
         return $this->fetch_attachment;
     }
-
+    
     /**
-     * @return bool
+     * @return boolean
      */
-    public function getFetchFlagsOption()
-    {
+    public function getFetchFlagsOption() {
         return $this->fetch_flags;
     }
 
     /**
      * @return int
      */
-    public function getMsglist()
-    {
+    public function getMsglist() {
         return $this->msglist;
     }
 
     /**
      * @return mixed
      */
-    public function getMessageId()
-    {
+    public function getMessageId() {
         return $this->message_id;
     }
 
     /**
      * @return int
      */
-    public function getMessageNo()
-    {
+    public function getMessageNo() {
         return $this->message_no;
     }
 
     /**
      * @return string
      */
-    public function getSubject()
-    {
+    public function getSubject() {
         return $this->subject;
     }
 
     /**
      * @return mixed
      */
-    public function getReferences()
-    {
+    public function getReferences() {
         return $this->references;
     }
 
     /**
      * @return Carbon|null
      */
-    public function getDate()
-    {
+    public function getDate() {
         return $this->date;
     }
 
     /**
      * @return array
      */
-    public function getFrom()
-    {
+    public function getFrom() {
         return $this->from;
     }
 
     /**
      * @return array
      */
-    public function getTo()
-    {
+    public function getTo() {
         return $this->to;
     }
 
     /**
      * @return array
      */
-    public function getCc()
-    {
+    public function getCc() {
         return $this->cc;
     }
 
     /**
      * @return array
      */
-    public function getBcc()
-    {
+    public function getBcc() {
         return $this->bcc;
     }
 
     /**
      * @return array
      */
-    public function getReplyTo()
-    {
+    public function getReplyTo() {
         return $this->reply_to;
     }
-
+    
     /**
      * @return string
      */
-    public function getInReplyTo()
-    {
+    public function getInReplyTo() {
         return $this->in_reply_to;
     }
 
     /**
      * @return array
      */
-    public function getSender()
-    {
+    public function getSender() {
         return $this->sender;
     }
 
     /**
      * @return mixed
      */
-    public function getBodies()
-    {
+    public function getBodies() {
         return $this->bodies;
     }
-
+    
     /**
      * @return FlagCollection
      */
-    public function getFlags()
-    {
+    public function getFlags() {
         return $this->flags;
     }
 
@@ -1127,12 +1056,10 @@ class Message
      *
      * A match means same uid, message id, subject and date/time.
      *
-     * @param null|static $message
-     *
-     * @return bool
+     * @param  null|static $message
+     * @return boolean
      */
-    public function is(self $message = null)
-    {
+    public function is(Message $message = null) {
         if (is_null($message)) {
             return false;
         }

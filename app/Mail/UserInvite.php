@@ -3,7 +3,11 @@
 namespace App\Mail;
 
 use App\Option;
+use Illuminate\Bus\Queueable;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 
 class UserInvite extends Mailable
 {
@@ -14,6 +18,7 @@ class UserInvite extends Mailable
 
     /**
      * Create a new message instance.
+     *
      */
     public function __construct($user)
     {

@@ -3,7 +3,6 @@
 /**
  * Class for defining common app functions.
  */
-
 namespace App\Misc;
 
 class Helper
@@ -25,48 +24,48 @@ class Helper
      */
     public static $menu = [
         'dashboard' => 'dashboard',
-        'mailbox'   => [
+        'mailbox' => [
             'mailboxes.view',
-            'conversations.view',
-            'conversations.create',
-            'conversations.draft',
-            'conversations.search',
+            'conversations.view', 
+            'conversations.create', 
+            'conversations.draft', 
+            'conversations.search', 
         ],
         'manage' => [
-            'settings'  => 'settings',
+            'settings' => 'settings',
             'mailboxes' => [
-                'mailboxes',
-                'mailboxes.update',
-                'mailboxes.create',
-                'mailboxes.connection',
-                'mailboxes.connection.incoming',
-                'mailboxes.permissions',
-                'mailboxes.auto_reply',
+                'mailboxes', 
+                'mailboxes.update', 
+                'mailboxes.create', 
+                'mailboxes.connection', 
+                'mailboxes.connection.incoming', 
+                'mailboxes.permissions', 
+                'mailboxes.auto_reply', 
             ],
             'users' => [
-                'users',
-                'users.create',
-                'users.profile',
-                'users.permissions',
-                'users.notifications',
-                'users.password',
+                'users', 
+                'users.create', 
+                'users.profile', 
+                'users.permissions', 
+                'users.notifications', 
+                'users.password', 
             ],
             'logs' => [
-                'logs',
+                'logs', 
                 'logs.app',
             ],
             'system' => [
-                'system',
+                'system', 
                 'system.tools',
             ],
         ],
         // No menu item selected
-        'customers' => [],
+        'customers' => []
     ];
 
     public static $locales = [
                 'af' => ['name'     => 'Afrikaans',
-                 'en'               => 'Afrikaans',
+                 'en'       => 'Afrikaans',
         ],
         'sq' => ['name'     => 'Shqip',
                  'en'       => 'Albanian',
@@ -303,7 +302,7 @@ class Helper
                  'en'       => 'Portuguese (Portugal)',
         ],
         'pt_BR' => ['name'     => 'Português do Brasil',
-                   'en'        => 'Portuguese (Brazil)',
+                   'en'       => 'Portuguese (Brazil)',
         ],
         'ro' => ['name'     => 'Română',
                  'en'       => 'Romanian',
@@ -506,7 +505,7 @@ class Helper
         foreach ($menu as $primary_name => $primary_items) {
             if (!is_array($primary_items)) {
                 if ($current_route == $primary_items) {
-                    return $primary_name == $menu_item_name;
+                    return ($primary_name == $menu_item_name);
                 }
                 if ($primary_name == $menu_item_name) {
                     return false;
@@ -516,20 +515,19 @@ class Helper
             foreach ($primary_items as $secondary_name => $secondary_routes) {
                 if (is_array($secondary_routes)) {
                     if (in_array($current_route, $secondary_routes)) {
-                        return $secondary_name == $menu_item_name || $primary_name == $menu_item_name;
+                        return ($secondary_name == $menu_item_name || $primary_name == $menu_item_name);
                     }
                 } elseif (is_string($secondary_name)) {
                     if ($current_route == $secondary_routes) {
-                        return $secondary_name == $menu_item_name || $primary_name == $menu_item_name;
+                        return ($secondary_name == $menu_item_name || $primary_name == $menu_item_name);
                     }
                 } else {
                     if ($current_route == $secondary_routes) {
-                        return $primary_name == $menu_item_name;
+                        return ($primary_name == $menu_item_name);
                     }
                 }
             }
         }
-
         return false;
     }
 
@@ -541,6 +539,7 @@ class Helper
             return '';
         }
     }
+
 
     /**
      * Resize image without using Intervention package.
@@ -554,27 +553,27 @@ class Helper
 
         if (preg_match('/png/i', $mime_type)) {
             $src = imagecreatefrompng($file);
-        } elseif (preg_match('/gif/i', $mime_type)) {
+        } else if (preg_match('/gif/i', $mime_type)) {
             $src = imagecreatefromgif($file);
-        } elseif (preg_match('/bmp/i', $mime_type)) {
+        } else if (preg_match('/bmp/i', $mime_type)) {
             $src = imagecreatefrombmp($file);
         } else {
             $src = imagecreatefromjpeg($file);
         }
-
+        
         $original_aspect = $width / $height;
         $thumb_aspect = $thumb_width / $thumb_height;
-        if ($original_aspect == $thumb_aspect) {
+        if ( $original_aspect == $thumb_aspect ) {
             $new_height = $thumb_height;
             $new_width = $thumb_width;
-        } elseif ($original_aspect > $thumb_aspect) {
-            // If image is wider than thumbnail (in aspect ratio sense)
-            $new_height = $thumb_height;
-            $new_width = $width / ($height / $thumb_height);
+        } elseif ( $original_aspect > $thumb_aspect ) {
+           // If image is wider than thumbnail (in aspect ratio sense)
+           $new_height = $thumb_height;
+           $new_width = $width / ($height / $thumb_height);
         } else {
-            // If the thumbnail is wider than the image
-            $new_width = $thumb_width;
-            $new_height = $height / ($width / $thumb_width);
+           // If the thumbnail is wider than the image
+           $new_width = $thumb_width;
+           $new_height = $height / ($width / $thumb_width);
         }
 
         $thumb = imagecreatetruecolor($thumb_width, $thumb_height);
@@ -601,7 +600,6 @@ class Helper
             if ($array && $exclude_array) {
                 $array = array_diff($array, $exclude_array);
             }
-
             return $array;
         } else {
             return [];
@@ -616,7 +614,7 @@ class Helper
     /**
      * Create zip archive.
      * Source example: public/files/*
-     * File name example: test.zip.
+     * File name example: test.zip
      */
     public static function createZipArchive($source, $file_name, $folder = '')
     {
@@ -658,11 +656,9 @@ class Helper
     }
 
     /**
-     * Check if application version.
-     *
-     * @param [type] $ver [description]
-     *
-     * @return [type] [description]
+     * Check if application version
+     * @param  [type] $ver [description]
+     * @return [type]      [description]
      */
     public static function checkAppVersion($version2, $operator = '>=')
     {
@@ -682,7 +678,7 @@ class Helper
 
     /**
      * Extract ZIP archive.
-     * to: must be apsolute path, otherwise extracted into /public/$to.
+     * to: must be apsolute path, otherwise extracted into /public/$to
      */
     public static function unzip($archive, $to)
     {

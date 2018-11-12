@@ -244,6 +244,10 @@
                             </div>
                             <div class="thread-body">
                                 {!! $thread->getCleanBody() !!}
+
+                                @if ( $thread->opened_at )
+                                    <span class='thread-opened-at' title='{{ App\User::dateFormat($thread->opened_at) }}'><span class="glyphicon glyphicon-eye-open"></span> {{ __("Customer viewed") }} {{ App\User::dateDiffForHumansWithHours($thread->opened_at) }}</span>
+                                @endif
                             </div>
                             @include('conversations/partials/thread_attachments')
                         </div>
@@ -264,11 +268,13 @@
                                                 @include('conversations/thread_by', ['as_link' => true])
                                             @endif
                                         </strong> 
-                                        {{-- Lines below must be spaceless --}}
                                         @if ($loop->last)
-                                            {{ __("started the conversation") }}@elseif ($thread->type == App\Thread::TYPE_NOTE)
-                                            {{ __("added a note") }}@else
-                                            {{ __("replied") }}@endif{{ \Eventy::action('thread.after_person_action', $thread, $loop, $threads, $conversation, $mailbox) }}
+                                            {{ __("started the conversation") }}
+                                        @elseif ($thread->type == App\Thread::TYPE_NOTE)
+                                            {{ __("added a note") }}
+                                        @else
+                                            {{ __("replied") }}
+                                        @endif
                                     </div>
                                     @if ($thread->type != App\Thread::TYPE_NOTE)
                                         <div class="thread-recipients">
@@ -331,6 +337,10 @@
                             </div>
                             <div class="thread-body">
                                 {!! $thread->getCleanBody() !!}
+
+                                @if ( $thread->opened_at )
+                                    <span class='thread-opened-at' title='{{ App\User::dateFormat($thread->opened_at) }}'><span class="glyphicon glyphicon-eye-open"></span> {{ __("Customer viewed") }} {{ App\User::dateDiffForHumansWithHours($thread->opened_at) }}</span>
+                                @endif
                             </div>
                             @if ($thread->has_attachments)
                                 <div class="thread-attachments">

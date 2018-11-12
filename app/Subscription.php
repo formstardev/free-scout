@@ -5,6 +5,7 @@
 
 namespace App;
 
+use App\Conversation;
 use App\Notifications\BroadcastNotification;
 use App\Notifications\WebsiteNotification;
 use Illuminate\Database\Eloquent\Model;
@@ -246,7 +247,7 @@ class Subscription extends Model
             ) {
                 continue;
             }
-
+            
             $users_to_notify[$subscription->medium][] = $subscription->user;
             $users_to_notify[$subscription->medium] = array_unique($users_to_notify[$subscription->medium]);
         }
@@ -339,6 +340,7 @@ class Subscription extends Model
                 continue;
             }
             foreach ($notify[$medium] as $notify_info) {
+                
                 $thread_id = $notify_info['threads'][0]->id;
 
                 foreach ($notify_info['users'] as $user) {
@@ -351,7 +353,7 @@ class Subscription extends Model
                         'conversation' => $notify_info['conversation'],
                         'threads'      => $notify_info['threads'],
                         'mediums'      => $mediums,
-                    ];
+                    ];   
                 }
             }
         }
@@ -361,7 +363,7 @@ class Subscription extends Model
         }
 
         // todo: mobile notification
-
+        
         self::$occured_events = [];
     }
 

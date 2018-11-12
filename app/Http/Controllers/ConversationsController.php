@@ -7,10 +7,10 @@ use App\Conversation;
 use App\Customer;
 use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
-use App\Events\UserAddedNote;
 use App\Events\UserCreatedConversation;
 use App\Events\UserCreatedConversationDraft;
 use App\Events\UserCreatedThreadDraft;
+use App\Events\UserAddedNote;
 use App\Events\UserReplied;
 use App\Folder;
 use App\Mailbox;
@@ -80,7 +80,6 @@ class ConversationsController extends Controller
                         ->first();
 
                     \Session::reflash();
-
                     return redirect()->away($conversation->url($folder->id));
                 }
             }
@@ -98,7 +97,6 @@ class ConversationsController extends Controller
             }
 
             \Session::reflash();
-
             return redirect()->away($conversation->url($folder->id));
         }
 
@@ -158,14 +156,14 @@ class ConversationsController extends Controller
         }
 
         return view($template, [
-            'conversation'       => $conversation,
-            'mailbox'            => $conversation->mailbox,
-            'customer'           => $customer,
-            'threads'            => $conversation->threads()->orderBy('created_at', 'desc')->get(),
-            'folder'             => $folder,
-            'folders'            => $conversation->mailbox->getAssesibleFolders(),
-            'after_send'         => $after_send,
-            'to_customers'       => $to_customers,
+            'conversation' => $conversation,
+            'mailbox'      => $conversation->mailbox,
+            'customer'     => $customer,
+            'threads'      => $conversation->threads()->orderBy('created_at', 'desc')->get(),
+            'folder'       => $folder,
+            'folders'      => $conversation->mailbox->getAssesibleFolders(),
+            'after_send'   => $after_send,
+            'to_customers' => $to_customers,
             'prev_conversations' => $prev_conversations,
         ]);
     }
@@ -408,7 +406,7 @@ class ConversationsController extends Controller
                     }
 
                     if ($validator->fails()) {
-                        foreach ($validator->errors()->getMessages()as $errors) {
+                        foreach ($validator->errors() ->getMessages()as $errors) {
                             foreach ($errors as $field => $message) {
                                 $response['msg'] .= $message.' ';
                             }
@@ -425,11 +423,11 @@ class ConversationsController extends Controller
                 }
 
                 if (!$response['msg']) {
-
+                    
                     // Get attachments info
                     $attachments_info = $this->processReplyAttachments($request);
 
-                    // Determine redirect.
+                    // Determine redirect. 
                     // Must be done before updating current conversation's status or assignee.
                     if (!$new) {
                         $response['redirect_url'] = $this->getRedirectUrl($request, $conversation, $user);
@@ -729,7 +727,7 @@ class ConversationsController extends Controller
                         }
                         //$thread->status = $request->status;
                         $thread->state = Thread::STATE_DRAFT;
-
+                        
                         $thread->source_via = Thread::PERSON_USER;
                         $thread->source_type = Thread::SOURCE_TYPE_WEB;
                         if ($customer) {
@@ -756,7 +754,6 @@ class ConversationsController extends Controller
 
                     $response['conversation_id'] = $conversation->id;
                     $response['thread_id'] = $thread->id;
-                    $response['number'] = $conversation->number;
 
                     $response['status'] = 'success';
 
@@ -787,7 +784,7 @@ class ConversationsController extends Controller
             case 'discard_draft':
 
                 $thread = Thread::find($request->thread_id);
-
+                
                 if (!$thread) {
                     // Discarding nont saved yet draft
                     $response['status'] = 'success';
@@ -800,7 +797,7 @@ class ConversationsController extends Controller
 
                 if (!$response['msg']) {
                     $conversation = $thread->conversation;
-
+                    
                     if ($conversation->state == Conversation::STATE_DRAFT) {
                         // New conversation draft being discarded
                         $folder_id = $conversation->getCurrentFolder();
@@ -822,7 +819,7 @@ class ConversationsController extends Controller
                             $conversation->mailbox->updateFoldersCounters(Folder::TYPE_DRAFTS);
                         }
                     }
-
+                    
                     $response['status'] = 'success';
                 }
                 break;
@@ -843,10 +840,10 @@ class ConversationsController extends Controller
                 if (!$response['msg']) {
                     $response['data'] = [
                         'thread_id' => $thread->id,
-                        'to'        => $thread->getToFirst(),
-                        'cc'        => $thread->getCcString(),
-                        'bcc'       => $thread->getBccString(),
-                        'body'      => $thread->body,
+                        'to' => $thread->getToFirst(),
+                        'cc' => $thread->getCcString(),
+                        'bcc' => $thread->getBccString(),
+                        'body' => $thread->body,
                     ];
                     $response['status'] = 'success';
                 }
@@ -883,7 +880,7 @@ class ConversationsController extends Controller
                     $response = $this->ajaxConversationsFilter($request, $response, $user);
                 } else {
                     $response = $this->ajaxConversationsPagination($request, $response, $user);
-                }
+                }                
                 break;
 
             // Change conversation customer
@@ -1023,7 +1020,7 @@ class ConversationsController extends Controller
 
         return view('conversations/ajax_html/send_log', [
             'customers_log' => $customers_log,
-            'users_log'     => $users_log,
+            'users_log' => $users_log,
         ]);
     }
 
@@ -1138,7 +1135,7 @@ class ConversationsController extends Controller
         if (!$response['msg']) {
             $embedded = true;
 
-            if (!empty($request->attach) && (int) $request->attach) {
+            if (!empty($request->attach) && (int)$request->attach) {
                 $embedded = false;
             }
 
@@ -1161,7 +1158,6 @@ class ConversationsController extends Controller
                 $response['msg'] = __('Error occured uploading file');
             }
         }
-
         return \Response::json($response);
     }
 
@@ -1196,7 +1192,7 @@ class ConversationsController extends Controller
             $query_conversations = Conversation::getQueryByFolder($folder, $user->id);
             $conversations = $folder->queryAddOrderBy($query_conversations)->paginate(Conversation::DEFAULT_LIST_SIZE, ['*'], 'page', $request->page);
         }
-
+        
         $response['status'] = 'success';
 
         $response['html'] = view('conversations/conversations_table', [
@@ -1331,7 +1327,7 @@ class ConversationsController extends Controller
 
         return [
             'has_attachments' => $has_attachments,
-            'attachments'     => $attachments,
+            'attachments' => $attachments,
         ];
     }
 
@@ -1352,7 +1348,6 @@ class ConversationsController extends Controller
         // Check undo timeout
         if ($thread->created_at->diffInSeconds(now()) > Conversation::UNDO_TIMOUT) {
             \Session::flash('flash_error_floating', __('Sending can not be undone'));
-
             return redirect()->away($conversation->url($conversation->folder_id));
         }
 
@@ -1388,4 +1383,5 @@ class ConversationsController extends Controller
 
         return redirect()->away($conversation->url($folder_id, null, ['show_draft' => $thread->id]));
     }
+
 }

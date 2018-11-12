@@ -190,7 +190,7 @@ abstract class Module extends ServiceProvider
     {
         $lowerName = $this->getLowerName();
 
-        $langPath = $this->getPath().'/Resources/lang';
+        $langPath = $this->getPath() . '/Resources/lang';
 
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, $lowerName);
@@ -213,7 +213,7 @@ abstract class Module extends ServiceProvider
         return array_get($this->moduleJson, $file, function () use ($file) {
             // In this Laravel-Modules package caching is not working, so we need to implement it.
             // https://github.com/nWidart/laravel-modules/issues/659
-
+            
             // Cache stores module.json files as arrays
             $cachedManifestsArray = $this->app['cache']->get($this->app['config']->get('modules.cache.key'));
 
@@ -221,15 +221,14 @@ abstract class Module extends ServiceProvider
                 foreach ($cachedManifestsArray as $manifest) {
                     // We found manifest data in cache
                     if (!empty($manifest['name']) && $manifest['name'] == $this->getName()) {
-                        return $this->moduleJson[$file] = new Json($this->getPath().'/'.$file, $this->app['files'], $manifest);
+                        return $this->moduleJson[$file] = new Json($this->getPath() . '/' . $file, $this->app['files'], $manifest);
                     }
                 }
             }
 
             // We have to set `active` flag from DB modules table.
-            $json = new Json($this->getPath().'/'.$file, $this->app['files']);
-            $json->set('active', (int) \App\Module::isActive($json->get('alias')));
-
+            $json = new Json($this->getPath() . '/' . $file, $this->app['files']);
+            $json->set('active', (int)\App\Module::isActive($json->get('alias')));
             return $this->moduleJson[$file] = $json;
             //return $this->moduleJson[$file] = new Json($this->getPath() . '/' . $file, $this->app['files']);
         });
@@ -239,7 +238,7 @@ abstract class Module extends ServiceProvider
      * Get a specific data from json file by given the key.
      *
      * @param string $key
-     * @param null   $default
+     * @param null $default
      *
      * @return mixed
      */
@@ -291,9 +290,8 @@ abstract class Module extends ServiceProvider
      */
     protected function fireEvent($event)
     {
-        $this->app['events']->fire(sprintf('modules.%s.'.$event, $this->getLowerName()), [$this]);
+        $this->app['events']->fire(sprintf('modules.%s.' . $event, $this->getLowerName()), [$this]);
     }
-
     /**
      * Register the aliases from this module.
      */
@@ -317,7 +315,7 @@ abstract class Module extends ServiceProvider
     protected function registerFiles()
     {
         foreach ($this->get('files', []) as $file) {
-            include $this->path.'/'.$file;
+            include $this->path . '/' . $file;
         }
     }
 
@@ -342,7 +340,7 @@ abstract class Module extends ServiceProvider
     {
         // echo "<pre>";
         // print_r($this->json());
-
+        
         //return (int)\App\Module::isActive($this->getAlias()) == $status;
         return $this->get('active', 0) === $status;
     }
@@ -361,7 +359,6 @@ abstract class Module extends ServiceProvider
      * Alternate for "enabled" method.
      *
      * @return bool
-     *
      * @deprecated
      */
     public function active()
@@ -373,7 +370,6 @@ abstract class Module extends ServiceProvider
      * Determine whether the current module not activated.
      *
      * @return bool
-     *
      * @deprecated
      */
     public function notActive()
@@ -447,7 +443,7 @@ abstract class Module extends ServiceProvider
      */
     public function getExtraPath(string $path) : string
     {
-        return $this->getPath().'/'.$path;
+        return $this->getPath() . '/' . $path;
     }
 
     /**

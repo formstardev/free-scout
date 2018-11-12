@@ -120,10 +120,8 @@ class Json
 
     /**
      * Get file contents as array.
-     *
-     * @throws \Exception
-     *
      * @return array
+     * @throws \Exception
      */
     public function getAttributes()
     {
@@ -135,7 +133,7 @@ class Json
 
             // any JSON parsing errors should throw an exception
             if (json_last_error() > 0) {
-                throw new InvalidJsonException('Error processing file: '.$this->getPath().'. Error: '.json_last_error_msg());
+                throw new InvalidJsonException('Error processing file: ' . $this->getPath() . '. Error: ' . json_last_error_msg());
             }
         }
 

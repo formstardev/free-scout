@@ -2,10 +2,11 @@
 /**
  * User replied from wrong email address to the email notification.
  */
-
 namespace App\Mail;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 
 class UserEmailReplyError extends Mailable
 {
@@ -16,6 +17,7 @@ class UserEmailReplyError extends Mailable
      */
     public function __construct()
     {
+
     }
 
     /**

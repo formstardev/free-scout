@@ -2,7 +2,9 @@
 
 namespace App\Mail;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 
 class UserNotification extends Mailable
 {
@@ -43,7 +45,7 @@ class UserNotification extends Mailable
 
     /**
      * Mailbox.
-     *
+     * 
      * @var [type]
      */
     public $mailbox;
