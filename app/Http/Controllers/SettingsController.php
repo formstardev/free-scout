@@ -86,8 +86,6 @@ class SettingsController extends Controller
 
     public function getSectionSettings($section)
     {
-        $settings = [];
-        
         switch ($section) {
             case 'general':
                 $settings = [
@@ -120,7 +118,7 @@ class SettingsController extends Controller
                 ];
                 break;
             default:
-                $settings = \Eventy::filter('settings.section_settings', $section, $settings);
+                $settings = \Event::fire('filter.section_settings', [$section]);
                 break;
         }
 
@@ -135,8 +133,7 @@ class SettingsController extends Controller
             'emails'  => ['title' => __('Mail Settings'), 'icon' => 'transfer', 'order' => 200],
             'alerts'  => ['title' => __('Alerts'), 'icon' => 'bell', 'order' => 300],
         ];
-        $sections = \Eventy::filter('settings.sections', $sections);
-
+        //return \Event::fire('filter.settings_sections', [$sections]);
         return $sections;
     }
 

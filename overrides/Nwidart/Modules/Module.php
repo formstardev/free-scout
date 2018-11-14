@@ -175,14 +175,7 @@ abstract class Module extends ServiceProvider
         }
 
         if ($this->isLoadFilesOnBoot()) {
-            try {
-                $this->registerFiles();
-            } catch (\Exception $e) {
-                $e = \Eventy::filter('modules.register_error', $e, $this);
-                if ($e) {
-                    throw $e;
-                }
-            }
+            $this->registerFiles();
         }
 
         $this->fireEvent('boot');
