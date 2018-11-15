@@ -9,8 +9,10 @@
         // Preload users and customers
         App\Conversation::loadUsers($conversations);
         App\Conversation::loadCustomers($conversations);
-        $conversations = \Eventy::filter('conversations_table.preload_table_data', $conversations);
     @endphp
+
+    @include('/conversations/partials/bulk_actions')
+
     <table class="table-conversations table" @if (!empty($conversations_filter)) @foreach ($conversations_filter as $filter_field => $filter_value) data-filter_{{ $filter_field }}="{{ $filter_value }}" @endforeach @endif >
         <colgroup>
             {{-- todo: without this columns table becomes not 100% wide --}}
@@ -73,7 +75,7 @@
                     @if (empty($no_checkboxes))<td class="conv-current"></td>@endif
                     @if (empty($no_checkboxes))
                         <td class="conv-cb">
-                            <input type="checkbox" id="cb-{{ $conversation->id }}" name="cb_{{ $conversation->id }}" value="{{ $conversation->id }}">
+                            <input type="checkbox" class="conv-checkbox" id="cb-{{ $conversation->id }}" name="cb_{{ $conversation->id }}" value="{{ $conversation->id }}">
                         </td>
                     @endif
                     @if (empty($no_customer))
@@ -110,7 +112,7 @@
                     <td class="conv-subject">
                         <a href="{{ $conversation->url() }}" title="{{ __('View conversation') }}">
                             <span class="conv-fader"></span>
-                            <p><span class="conv-subject-number">#{{ $conversation->number }} </span>@action('conversations_table.before_subject', $conversation){{ $conversation->getSubject() }}</p>
+                            <p><span class="conv-subject-number">#{{ $conversation->number }} </span>{{ $conversation->getSubject() }}</p>
                             <p class="conv-preview">@if ($conversation->preview){{ $conversation->preview }}@else&nbsp;@endif</p>
                         </a>
                     </td>
@@ -173,3 +175,8 @@
 @else
     @include('partials/empty', ['empty_text' => __('There are no conversations here')])
 @endif
+
+@section('javascript')
+    @parent
+    converstationBulkActionsInit();
+@endsection

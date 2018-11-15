@@ -263,7 +263,6 @@
     @if ($__env->yieldContent('javascript'))
         <script type="text/javascript">
             @yield('javascript')
-            @action('javascript')
         </script>
     @endif
 </body>

@@ -27,7 +27,7 @@
         "codedge/laravel-selfupdater": "1.4.3"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "v3.2.0",
+        "barryvdh/laravel-debugbar": "v2.4.3",
         "filp/whoops": "2.2.0",
         "fzaninotto/faker": "v1.7.1",
         "mockery/mockery": "1.1.0",
@@ -47,8 +47,7 @@
             "RachidLaasri\\LaravelInstaller\\Middleware\\": "overrides/RachidLaasri/LaravelInstaller/Middleware/",
             "RachidLaasri\\LaravelInstaller\\Controllers\\": "overrides/RachidLaasri/LaravelInstaller/Controllers/",
             "Nwidart\\Modules\\": "overrides/Nwidart/Modules/",
-            "Codedge\\Updater\\SourceRepositoryTypes\\": "overrides/Codedge/Updater/SourceRepositoryTypes/",
-            "Illuminate\\Foundation\\": "overrides/Illuminate/Foundation/"
+            "Codedge\\Updater\\SourceRepositoryTypes\\": "overrides/Codedge/Updater/SourceRepositoryTypes/"
         },
         "exclude-from-classmap": [
             "vendor/axn/laravel-laroute/src/Routes/Collection.php",
@@ -64,8 +63,7 @@
             "vendor/nwidart/laravel-modules/src/Module.php",
             "vendor/nwidart/laravel-modules/src/Repository.php",
             "vendor/nwidart/laravel-modules/src/Json.php",
-            "vendor/codedge/laravel-selfupdater/src/SourceRepositoryTypes/GithubRepositoryType.php",
-            "vendor/laravel/framework/src/Illuminate/Foundation/ProviderRepository.php"
+            "vendor/codedge/laravel-selfupdater/src/SourceRepositoryTypes/GithubRepositoryType.php"
         ]
     },
     "autoload-dev": {
