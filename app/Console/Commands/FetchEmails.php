@@ -269,6 +269,7 @@ class FetchEmails extends Command
                         $this->line('['.date('Y-m-d H:i:s').'] Message from: Customer');
 
                         if (!$is_bounce) {
+
                             if ($prev_message_id) {
                                 $prev_thread_id = '';
 
@@ -479,8 +480,10 @@ class FetchEmails extends Command
 
         if ($new) {
             event(new CustomerCreatedConversation($conversation, $thread));
+            \Eventy::action('conversation.created_by_customer', $conversation, $thread);
         } else {
             event(new CustomerReplied($conversation, $thread));
+            \Eventy::action('conversation.customer_replied', $conversation, $thread);
         }
 
         // Conversation customer changed
@@ -553,6 +556,7 @@ class FetchEmails extends Command
         }
 
         event(new UserReplied($conversation, $thread));
+        \Eventy::action('conversation.user_replied', $conversation, $thread);
 
         return $thread->id;
     }
