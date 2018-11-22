@@ -649,32 +649,6 @@ function conversationInit()
 			e.preventDefault();
 		});
 
-		// Restore conversation
-		jQuery(".conv-status li > a.conv-restore-trigger").click(function(e) {
-			if (!$(this).hasClass('active')) {
-				fsAjax({
-					action: 'restore_conversation',
-					conversation_id: getGlobalAttr('conversation_id')
-				}, 
-				laroute.route('conversations.ajax'),
-				function(response) {
-					if (typeof(response.status) != "undefined" && response.status == 'success') {
-						if (typeof(response.redirect_url) != "undefined") {
-							window.location.href = response.redirect_url;
-						} else {
-							window.location.href = '';
-						}
-					} else if (typeof(response.msg) != "undefined") {
-						showFloatingAlert('error', response.msg);
-					} else {
-						showFloatingAlert('error', Lang.get("messages.error_occured"));
-					}
-					loaderHide();
-				});
-			}
-			e.preventDefault();
-		});
-
 	    // Reply
 	    jQuery(".conv-reply").click(function(e){
 	    	// We don't allow to switch between reply and note, as it creates multiple drafts
@@ -2813,4 +2787,22 @@ function installModule(alias)
 			}
 		}, true
 	);
+}
+
+// Scroll to
+function scrollTo(el, selector, speed, offset)
+{
+    if (typeof(offset) == "undefined") {
+        offset = 0;
+    }
+    if (typeof(speed) == "undefined") {
+        speed = 600;
+    }
+    var eljq = null;
+    if (el) {
+        eljq = $(el);
+    } else {
+        eljq = $(selector);
+    }
+    $('html, body').animate({scrollTop: (eljq.offset().top+offset)}, speed);
 }
