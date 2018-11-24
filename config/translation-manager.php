@@ -40,21 +40,8 @@ return [
      *        'validation',
      *    )
      */
-    'exclude_groups' => [
-        'auth',
-        'reminders',
-        'pagination',
-        'passwords',
-        'validation',
-        'installer_messages',
-    ],
+    'exclude_groups' => [],
 
-    /**
-     * Regular expression may determine goup incorrectly, for example for 'e.g'
-     */
-    'incorrect_groups' => [
-        'e',
-    ],
     /*
      * Exclude specific languages from Laravel Translation Manager.
      *
