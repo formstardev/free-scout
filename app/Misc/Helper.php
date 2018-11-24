@@ -708,4 +708,43 @@ class Helper
         }
         return $value;
     }
+
+    /**
+     * Log custom data to activity log.
+     * @param  [type] $log_name [description]
+     * @param  [type] $data     [description]
+     * @param  [type] $code     [description]
+     * @return [type]           [description]
+     */
+    public static function log($log_name, $description, $properties = [])
+    {
+        activity()
+            ->withProperties($properties)
+            ->useLog($log_name)
+            ->log($description);
+    }
+
+    /**
+     * Check if folder is writable.
+     * @param  [type]  $path [description]
+     * @return boolean       [description]
+     */
+    public static function isFolderWritable($path)
+    {
+        if (!file_exists($path)) {
+            return false;
+        }
+        $path = rtrim($path, DIRECTORY_SEPARATOR);
+        try {
+            $file = $path.DIRECTORY_SEPARATOR.'.writable_test';
+            if ($file && file_put_contents($file, 'test')) {
+                unlink($file);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
