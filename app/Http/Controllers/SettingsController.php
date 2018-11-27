@@ -60,7 +60,7 @@ class SettingsController extends Controller
         $section_vars = $this->getSectionParams($section, 'template_vars');
 
         if ($section_vars && is_array($section_vars)) {
-            return array_merge($template_vars, $section_vars);
+            return array_merge($template_vars, $section_vars);    
         } else {
             return $template_vars;
         }
@@ -71,11 +71,9 @@ class SettingsController extends Controller
      *
      * If in settings parameter `env` is set, option will be saved into .env file
      * instead of DB.
-     *
-     * @param [type] $section [description]
-     * @param string $param   [description]
-     *
-     * @return [type] [description]
+     * @param  [type] $section [description]
+     * @param  string $param   [description]
+     * @return [type]          [description]
      */
     public function getSectionParams($section, $param = '')
     {
@@ -90,7 +88,7 @@ class SettingsController extends Controller
                             'mail'     => __("PHP's mail() function"),
                             'sendmail' => __('Sendmail'),
                             'smtp'     => 'SMTP',
-                        ],
+                        ]
                     ],
                     'validator_rules' => [
                         'settings.mail_from' => 'required|email',
@@ -101,10 +99,10 @@ class SettingsController extends Controller
                 $params = [
                     'settings' => [
                         'locale' => [
-                            'env' => 'APP_LOCALE',
+                            'env' => 'APP_LOCALE'
                         ],
                         'timezone' => [
-                            'env' => 'APP_TIMEZONE',
+                            'env' => 'APP_TIMEZONE'
                         ],
                     ],
                 ];
@@ -118,7 +116,7 @@ class SettingsController extends Controller
             if (isset($params[$param])) {
                 return $params[$param];
             } else {
-                return;
+                return null;
             }
         } else {
             return $params;

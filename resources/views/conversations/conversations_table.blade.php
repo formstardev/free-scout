@@ -179,5 +179,5 @@
 
 @section('javascript')
     @parent
-    conversationsTableInit();
+    converstationBulkActionsInit();
 @endsection
