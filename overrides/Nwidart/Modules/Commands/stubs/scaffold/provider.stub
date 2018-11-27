@@ -25,15 +25,6 @@ class $CLASS$ extends ServiceProvider
         $this->registerViews();
         $this->registerFactories();
         $this->loadMigrationsFrom(__DIR__ . '/../$MIGRATIONS_PATH$');
-        $this->hooks();
-    }
-
-    /**
-     * Module hooks.
-     */
-    public function hooks()
-    {
-        
     }
 
     /**
