@@ -113,12 +113,7 @@
                     <td class="conv-subject">
                         <a href="{{ $conversation->url() }}" title="{{ __('View conversation') }}">
                             <span class="conv-fader"></span>
-                            <p>
-                                @if ($conversation->has_attachments)
-                                    <i class="conv-attachment-mobile glyphicon glyphicon-paperclip"></i>
-                                @endif
-                                <span class="conv-subject-number">#{{ $conversation->number }} </span>@action('conversations_table.before_subject', $conversation){{ $conversation->getSubject() }}
-                            </p>
+                            <p><span class="conv-subject-number">#{{ $conversation->number }} </span>@action('conversations_table.before_subject', $conversation){{ $conversation->getSubject() }}</p>
                             <p class="conv-preview">@if ($conversation->preview){{ $conversation->preview }}@else&nbsp;@endif</p>
                         </a>
                     </td>
@@ -184,5 +179,5 @@
 
 @section('javascript')
     @parent
-    conversationsTableInit();
+    converstationBulkActionsInit();
 @endsection
