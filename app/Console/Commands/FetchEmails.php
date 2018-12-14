@@ -199,6 +199,7 @@ class FetchEmails extends Command
 
                     // Is it a bounce message
                     $is_bounce = false;
+                    $bounce_attachment = null;
 
                     // Determine previous Message-ID
                     $prev_message_id = '';
@@ -237,29 +238,23 @@ class FetchEmails extends Command
                         }
                     }
 
-                    // Bounce detection.
-                    // This is a temporary simple solution.
+                    // Determine bounce by attachment
                     if ($message->hasAttachments()) {
-                        // Detect bounce by attachment.
                         foreach ($attachments as $attachment) {
                             if (!empty(Attachment::$types[$attachment->getType()]) && Attachment::$types[$attachment->getType()] == Attachment::TYPE_MESSAGE) {
-                                if (in_array($attachment->getName(), ['RFC822', 'DELIVERY-STATUS'])) {
+                                if (in_array(strtoupper($attachment->getName()), ['RFC822', 'DELIVERY-STATUS', 'DELIVERY-STATUS-NOTIFICATION', 'UNDELIVERED-MESSAGE'])) {
                                     $is_bounce = true;
+                                    $bounce_attachment = $attachment;
                                     break;
                                 }
                             }
                         }
-                        // Check Content-Type.
-                        if ($message->getHeader()) {
-                            $headers = $message->getHeader();
-                            if (preg_match("/Content-Type:((?:[^\n]|\n[\t ])+)(?:\n[^\t ]|$)/i", $headers, $match)
-                                && preg_match("/multipart\/report/i", $match[1])
-                                && preg_match("/report-type=[\"']?delivery-status[\"']?/i", $match[1])
-                            ) {
-                                // Standard DSN message.
-                                $is_bounce = true;
-                            }
-                        }
+                    }
+
+                    // If a bounce was not detected by the attachment check, try to determine a bounce by looking at subject or at From
+                    if (!$is_bounce) {
+                        $is_bounce = preg_match('/Delivery Status Notification/i', $message->getSubject() )
+                                        || preg_match('/mailer-daemon/i', $from );
                     }
 
                     // Is it a message from Customer or User replied to the notification
@@ -352,12 +347,12 @@ class FetchEmails extends Command
                     $this->createCustomers($emails, $mailbox->getEmails());
 
                     if ($message_from_customer) {
-                        // SendAutoReply will check headers and will not send an auto reply if this is an auto responder.
-                        /*if ($this->isAutoResponder($message->getHeader())) {
+                        // Detect and ignore autoresponders.
+                        if ($this->isAutoResponder($message->getHeader())) {
                             $this->line('['.date('Y-m-d H:i:s').'] Email detected as autoresponder and ignored.');
                             $message->setFlag(['Seen']);
                             continue;
-                        }*/
+                        }
                         $new_thread_id = $this->saveCustomerThread($mailbox->id, $message_id, $prev_thread, $from, $to, $cc, $bcc, $subject, $body, $attachments, $message->getHeader());
                     } else {
                         // Check if From is the same as user's email.
@@ -389,6 +384,44 @@ class FetchEmails extends Command
         }
 
         $client->disconnect();
+    }
+
+    /**
+     * Detect autoresponder by headers.
+     * https://github.com/jpmckinney/multi_mail/wiki/Detecting-autoresponders
+     * https://www.jitbit.com/maxblog/18-detecting-outlook-autoreplyout-of-office-emails-and-x-auto-response-suppress-header/.
+     *
+     * @return bool [description]
+     */
+    public function isAutoResponder($headers_str)
+    {
+        $autoresponder_headers = [
+            'x-autoreply'    => '',
+            'x-autorespond'  => '',
+            'auto-submitted' => 'auto-replied',
+        ];
+        $headers = explode("\n", $headers_str);
+
+        foreach ($autoresponder_headers as $auto_header => $auto_header_value) {
+            foreach ($headers as $header) {
+                $parts = explode(':', $header, 2);
+                if (count($parts) == 2) {
+                    $name = trim(strtolower($parts[0]));
+                    $value = trim($parts[1]);
+                } else {
+                    continue;
+                }
+                if (strtolower($name) == $auto_header) {
+                    if (!$auto_header_value) {
+                        return true;
+                    } elseif ($value == $auto_header_value) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     public function logError($message)
