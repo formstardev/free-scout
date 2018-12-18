@@ -2451,14 +2451,6 @@ function conversationsTableInit()
 {
 	converstationBulkActionsInit();
 
-	$(function() {
-		$('.toggle-all:checkbox').on('click', function () {
-			$('.conv-checkbox:checkbox').prop('checked', this.checked).trigger('change');
-		});
-	});
-
-	
-
 	if ("ontouchstart" in window)
 	{
 		$(document).ready(function() {
