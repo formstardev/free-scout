@@ -368,30 +368,10 @@ class FetchEmails extends Command
                     $emails = array_merge($message->getFrom(), $message->getReplyTo(), $message->getTo(), $message->getCc(), $message->getBcc());
                     $this->createCustomers($emails, $mailbox->getEmails());
 
-                    $hook = new \StdClass();
-                    $hook->mailbox = $mailbox;
-                    $hook->message_id = $message_id;
-                    $hook->prev_thread = $prev_thread;
-                    $hook->from = $from;
-                    $hook->to = $to;
-                    $hook->cc = $cc;
-                    $hook->bcc = $bcc;
-                    $hook->subject = $subject;
-                    $hook->body = $body;
-                    $hook->attachments = $attachments;
-                    $hook->message = $message;
-                    $hook->is_bounce = $is_bounce;
-
                     $new_thread = null;
                     if ($message_from_customer) {
-                        if (\Eventy::filter('fetch_emails.should_save_thread', $hook) !== false) {
-                            // SendAutoReply listener will check bounce flag and will not send an auto reply if this is an auto responder.
-                            $new_thread = $this->saveCustomerThread($mailbox->id, $message_id, $prev_thread, $from, $to, $cc, $bcc, $subject, $body, $attachments, $message->getHeader());
-                        } else {
-                            $this->line('['.date('Y-m-d H:i:s').'] Hook fetch_emails.should_save_thread returned false. Skipping message.');
-                            $message->setFlag(['Seen']);
-                            continue;
-                        }
+                        // SendAutoReply listener will check bounce flag and will not send an auto reply if this is an auto responder.
+                        $new_thread = $this->saveCustomerThread($mailbox->id, $message_id, $prev_thread, $from, $to, $cc, $bcc, $subject, $body, $attachments, $message->getHeader());
                     } else {
                         // Check if From is the same as user's email.
                         // If not we send an email with information to the sender.
@@ -405,13 +385,7 @@ class FetchEmails extends Command
                             continue;
                         }
 
-                        if (\Eventy::filter('fetch_emails.should_save_thread', $hook) !== false) {
-                            $new_thread = $this->saveUserThread($mailbox, $message_id, $prev_thread, $user, $from, $to, $cc, $bcc, $body, $attachments, $message->getHeader());
-                        } else {
-                            $this->line('['.date('Y-m-d H:i:s').'] Hook fetch_emails.should_save_thread returned false. Skipping message.');
-                            $message->setFlag(['Seen']);
-                            continue;
-                        }
+                        $new_thread = $this->saveUserThread($mailbox, $message_id, $prev_thread, $user, $from, $to, $cc, $bcc, $body, $attachments, $message->getHeader());
                     }
 
                     if ($new_thread) {
@@ -457,7 +431,7 @@ class FetchEmails extends Command
             $status_data['bounce_for_thread'] = $bounced_thread->id;
             $status_data['bounce_for_conversation'] = $bounced_thread->conversation_id;
         }
-
+      
         $new_thread->updateSendStatusData($status_data);
         $new_thread->save();
 
@@ -466,13 +440,13 @@ class FetchEmails extends Command
             $bounced_thread->send_status = SendLog::STATUS_DELIVERY_ERROR;
 
             $status_data = [
-                'bounced_by_thread'       => $new_thread->id,
+                'bounced_by_thread' => $new_thread->id,
                 'bounced_by_conversation' => $new_thread->conversation_id,
                 // todo.
                 // 'bounce_info' => [
                 // ]
             ];
-
+            
             $bounced_thread->updateSendStatusData($status_data);
             $bounced_thread->save();
 
