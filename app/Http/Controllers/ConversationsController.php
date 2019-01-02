@@ -621,7 +621,7 @@ class ConversationsController extends Controller
                         \Helper::backgroundAction('conversation.created_by_user', [$conversation, $thread], now()->addSeconds(Conversation::UNDO_TIMOUT));
                     } elseif ($is_note) {
                         event(new UserAddedNote($conversation, $thread));
-                        \Eventy::action('conversation.note_added', $conversation, $thread);
+                        \Eventy::action('conversation.note_added', $conversation, $thread, $user);
                     } else {
                         // Reply.
                         event(new UserReplied($conversation, $thread));

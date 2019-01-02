@@ -2612,7 +2612,6 @@ function converstationBulkActionsInit()
 
 function switchToNote()
 {
-	$(".conv-reply-block").addClass('hidden');
 	$('.conv-add-note:first').click();
 }
 

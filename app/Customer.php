@@ -663,7 +663,7 @@ class Customer extends Model
     {
         $email = Email::sanitizeEmail($email);
         if (!$email) {
-            return null;
+            return;
         }
         $email_obj = Email::where('email', $email)->first();
         if ($email_obj) {
