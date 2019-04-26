@@ -980,7 +980,7 @@ class ConversationsController extends Controller
                 }
 
                 if (!$response['msg']) {
-                    $folder_id = $conversation->folder_id;
+                    $folder_id = $conversation->getCurrentFolder();
                     $conversation->state = Conversation::STATE_DELETED;
                     $conversation->user_updated_at = date('Y-m-d H:i:s');
                     $conversation->updateFolder();
