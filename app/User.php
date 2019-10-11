@@ -635,7 +635,7 @@ class User extends Authenticatable
                 return '';
             }
         } else {
-            return '/img/default-avatar.png';
+            return URL::to('/img/default-avatar.png');
         }
     }
 
@@ -820,5 +820,35 @@ class User extends Authenticatable
         } else {
             return strtoupper(mb_substr($this->first_name, 0, 1));
         }
+    }
+
+    /**
+     * Get user phone.
+     *
+     * @return string|null
+     */
+    public function getPhone() :?string
+    {
+        return $this->phone;
+    }
+
+    /**
+     * Get user job title.
+     *
+     * @return string|null
+     */
+    public function getJobTitle() :?string
+    {
+        return $this->job_title;
+    }
+
+    /**
+     * Get user email.
+     *
+     * @return string
+     */
+    public function getEmail() :string
+    {
+        return $this->email;
     }
 }
