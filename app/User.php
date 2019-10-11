@@ -331,7 +331,7 @@ class User extends Authenticatable
             // Convert string in to Carbon
             $date = Carbon::parse($date);
         }
-        
+
         if ($user) {
             if ($user->time_format == self::TIME_FORMAT_12) {
                 $format = strtr($format, [
