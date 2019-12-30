@@ -4932,7 +4932,7 @@ a.label:focus {
   top: -1px;
 }
 .label-default {
-  background-color: #909eab;
+  background-color: #777;
 }
 .label-default[href]:hover,
 .label-default[href]:focus {
