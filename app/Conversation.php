@@ -382,11 +382,7 @@ class Conversation extends Model
             ->where('state', Thread::STATE_PUBLISHED)
             ->orderBy('created_at', 'desc');
         if ($types) {
-            if (count($types) == 1 && $types[0]) {
-                $query->where('type', $types[0]);
-            } else {
-                $query->whereIn('type', $types);
-            }
+            $query->whereIn('type', $types);
         }
         return $query->first();
     }
