@@ -621,5 +621,4 @@ class MailboxesController extends Controller
 
         return \Response::json($response);
     }
-
 }
