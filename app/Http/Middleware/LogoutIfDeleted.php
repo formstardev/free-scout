@@ -20,7 +20,7 @@ class LogoutIfDeleted
     public function handle($request, Closure $next, $guard = null)
     {
         $user = Auth::user();
-        if ($user && ($user->isDeleted() || $user->isDisabled())) {
+        if ($user && $user->status == \App\User::STATUS_DELETED) {
             Auth::logout();
             return Redirect::route('login');
         }
