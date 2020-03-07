@@ -14,12 +14,11 @@
     @foreach($requirements['requirements'] as $type => $requirement)
         <ul class="list">
             <li class="list__item list__title {{ $phpSupportInfo['supported'] ? 'success' : 'error' }}">
-                <strong>@if ($type != 'php'){{ ucfirst($type) }}@else PHP @endif</strong>
+                <strong>{{ ucfirst($type) }}</strong>
                 @if($type == 'php')
                     <strong>
                         <small>
-                            <?php /*(version {{ $phpSupportInfo['minimum'] }} required)*/ ?>
-                            (7.0 - 7.3)
+                            (version {{ $phpSupportInfo['minimum'] }} required)
                         </small>
                     </strong>
                     <span class="float-right">
