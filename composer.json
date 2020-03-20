@@ -99,8 +99,7 @@
             "Illuminate\\Mail\\": "overrides/Illuminate/Mail/",
             "Lord\\Laroute\\Routes\\": "overrides/Lord/Laroute/Routes/",
             "TorMorten\\Eventy\\": "overrides/TorMorten/Eventy/",
-            "Symfony\\Component\\Debug\\": "overrides/Symfony/Component/Debug/",
-            "Symfony\\Component\\HttpFoundation\\": "overrides/Symfony/Component/HttpFoundation/"
+            "Symfony\\Component\\Debug\\": "overrides/Symfony/Component/Debug/"
         },
         "exclude-from-classmap": [
             "vendor/axn/laravel-laroute/src/Routes/Collection.php",
@@ -129,8 +128,7 @@
             "vendor/lord/laroute/src/Routes/Collection.php",
             "vendor/tormjens/eventy/src/Filter.php",
             "vendor/tormjens/eventy/src/Action.php",
-            "vendor/symfony/debug/ExceptionHandler.php",
-            "vendor/symfony/http-foundation/ResponseHeaderBag.php"
+            "vendor/symfony/debug/ExceptionHandler.php"
         ]
     },
     "autoload-dev": {

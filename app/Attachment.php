@@ -208,8 +208,6 @@ class Attachment extends Model
      */
     public function download()
     {
-        // #533
-        //return $this->getDisk()->download($this->getStorageFilePath(), \Str::ascii($this->file_name));
         return $this->getDisk()->download($this->getStorageFilePath(), $this->file_name);
     }
 

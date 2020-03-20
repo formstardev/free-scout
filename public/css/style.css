@@ -3925,11 +3925,6 @@ a.disabled:focus {
     top: 1px;
     font-size: 16px;
 }
-.subheader {
-    background-color: #F1F3F5;
-    padding: 10px;
-    margin-bottom: 20px;
-}
 
 /**
  * Mobile
