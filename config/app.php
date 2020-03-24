@@ -12,7 +12,7 @@ return [
     | or any other location as required by the application or its packages.
     */
 
-    'version' => '1.5.0',
+    'version' => '1.5.2',
 
     /*
     |--------------------------------------------------------------------------
@@ -257,6 +257,30 @@ return [
     |-------------------------------------------------------------------------
     */
     'download_attachments_via'    => env('APP_DOWNLOAD_ATTACHMENTS_VIA', 'php'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | none - send to the customer only agent's reply in the email.
+    | 
+    | last - send to the customer the last message in the email.
+    | 
+    | full - send to the customer full conversation history in the email.
+    |
+    |-------------------------------------------------------------------------
+    */
+    'email_conv_history'    => env('APP_EMAIL_CONV_HISTORY', 'none'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | none - send to the user only agent's reply in the email.
+    | 
+    | last - send to the user the last message in the email.
+    |
+    | full - send to the user full conversation history in the email.
+    |
+    |-------------------------------------------------------------------------
+    */
+    'email_user_history'    => env('APP_EMAIL_USER_HISTORY', 'none'),
 
     /*
     |--------------------------------------------------------------------------
