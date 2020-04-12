@@ -114,7 +114,6 @@ class FetchEmails extends Command
             $imap_folders = $mailbox->getInImapFolders();
 
             foreach ($imap_folders as $folder_name) {
-                $folder = null;
                 try {
                     $folder = $client->getFolder($folder_name);
                 } catch (\Exception $e) {
