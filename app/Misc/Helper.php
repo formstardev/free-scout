@@ -1333,9 +1333,4 @@ class Helper
 
         \Session::flash('flashes_floating', $flashes);
     }
-
-    public static function isMySql()
-    {
-        return \DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'mysql';
-    }
 }
