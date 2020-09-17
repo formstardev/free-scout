@@ -474,7 +474,6 @@ select.form-control {
 }
 .input-sized-lg {
     width: 320px;
-    max-width: 100%;
 }
 .control-label {
     font-size: 13.4px;
@@ -3828,9 +3827,6 @@ a.disabled:focus {
 .panel-shaded {
     -webkit-box-shadow:0 0 10px rgba(0,0,0,.2);
     box-shadow:0 0 10px rgba(0,0,0,.2);
-}
-.panel-padded {
-    padding: 20px;
 }
 .icon-large {
     font-size: 57px;

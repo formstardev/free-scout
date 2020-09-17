@@ -753,8 +753,6 @@ class Customer extends Model
      */
     public static function create($email, $data = [])
     {
-        $new = false;
-
         $email = Email::sanitizeEmail($email);
         if (!$email) {
             return null;
@@ -775,8 +773,6 @@ class Customer extends Model
             $customer = new self();
             $email_obj = new Email();
             $email_obj->email = $email;
-
-            $new = true;
         }
 
         // Set empty fields
@@ -787,10 +783,6 @@ class Customer extends Model
         if (empty($email_obj->id) || !$email_obj->customer_id) {
             $email_obj->customer()->associate($customer);
             $email_obj->save();
-        }
-
-        if ($new) {
-            \Eventy::action('customer.created', $customer);
         }
 
         return $customer;
@@ -850,8 +842,6 @@ class Customer extends Model
         $customer = new self();
         $customer->fill($data);
         $customer->save();
-
-        \Eventy::action('customer.created', $customer);
 
         return $customer;
     }

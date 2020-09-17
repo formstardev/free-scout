@@ -158,8 +158,6 @@ class CustomersController extends Controller
             }
         }
 
-        \Eventy::action('customer.updated', $customer);
-
         $flash_message = __('Customer saved successfully.').' '.$flash_message;
         \Session::flash('flash_success_unescaped', $flash_message);
 
