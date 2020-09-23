@@ -142,8 +142,7 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Mailbox')->as('settings')
             ->withPivot('after_send')
             ->withPivot('hide')
-            ->withPivot('mute')
-            ->withPivot('access');
+            ->withPivot('mute');
     }
 
     /**
@@ -245,13 +244,13 @@ class User extends Authenticatable
         $user = $this;
 
         if ($this->isAdmin()) {
-            $query = Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute', 'mailbox_user.access'])
+            $query = Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute'])
                         ->leftJoin('mailbox_user', function ($join) use ($user) {
                             $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
                             $join->where('mailbox_user.user_id', $user->id);
                         });
         } else {
-            $query = Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute', 'mailbox_user.access'])
+            $query = Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute'])
                         ->join('mailbox_user', function ($join) use ($user) {
                             $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
                             $join->where('mailbox_user.user_id', $user->id);
@@ -281,52 +280,6 @@ class User extends Authenticatable
         $ids = $this->mailboxesIdsCanView();
         return in_array($mailbox_id, $ids);
     }
-
-    /**
-     * Check to see if the user can manage any mailboxes
-     */
-    public function hasManageMailboxAccess() {
-        if ($this->isAdmin()) {
-            return true;
-        } else {
-            $mailboxes = $this->mailboxesCanViewWithSettings();
-            foreach ($mailboxes as $mailbox) {
-                if ($mailbox->access) {
-                    if (!empty(json_decode($mailbox->access))) {
-                        return true;
-                    }
-                }
-            };
-        }
-    }
-
-    /**
-     * Check to see if the user can manage a specific mailbox
-     */
-    public function canManageMailbox($mailbox_id)
-    {
-        if ($this->isAdmin()) {
-            return true;
-        } else {
-            $mailbox = $this->mailboxesCanViewWithSettings()->where('id', $mailbox_id)->first();
-            if ($mailbox->access) {
-                if (!empty(json_decode($mailbox->access))) {
-                    return true;
-                }
-            };
-        }
-    }
-
-    public function hasManageMailboxPermission($mailbox_id, $perm) {
-        if ($this->isAdmin()) {
-            return true;
-        } else {
-            $mailbox = $this->mailboxesCanViewWithSettings()->where('id', $mailbox_id)->first();
-            if (in_array($perm, json_decode($mailbox->access))) return true;
-        }
-    }
-
-
 
     /**
      * Generate random password for the user.

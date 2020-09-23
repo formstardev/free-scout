@@ -98,16 +98,6 @@ class Mailbox extends Model
 {%mailbox.name%}</span>';
 
     /**
-     * Mailbox User Access Permissions.
-     */
-    public static $USER_ACCESS_PERMISSIONS = [
-        'Edit Mailbox' => 'edit',
-        'Permissions' => 'perm',
-        'Auto Replies' => 'auto',
-        'Email Signature' => 'sig'
-    ];
-
-    /**
      * Default values.
      */
     protected $attributes = [
@@ -172,8 +162,7 @@ class Mailbox extends Model
         return $this->belongsToMany('App\User')->as('settings')
             ->withPivot('after_send')
             ->withPivot('hide')
-            ->withPivot('mute')
-            ->withPivot('access');
+            ->withPivot('mute');
     }
 
     /**
@@ -563,7 +552,6 @@ class Mailbox extends Model
             $settings->after_send = MailboxUser::AFTER_SEND_NEXT;
             $settings->hide = false;
             $settings->mute = false;
-            $settings->access = false;
 
             return $settings;
         }
@@ -576,7 +564,6 @@ class Mailbox extends Model
         $this->after_send = $settings->after_send;
         $this->hide = $settings->hide;
         $this->mute = $settings->mute;
-        $this->access = $settings->access;
     }
 
     /**
@@ -703,7 +690,7 @@ class Mailbox extends Model
 
     public static function findOrFailWithSettings($id, $user_id)
     {
-        return Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute', 'mailbox_user.access'])
+        return Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute'])
                         ->where('mailboxes.id', $id)
                         ->leftJoin('mailbox_user', function ($join) use ($user_id) {
                             $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');

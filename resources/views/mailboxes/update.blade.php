@@ -26,11 +26,8 @@
                         <label for="name" class="col-sm-2 control-label">{{ __('Mailbox Name') }}</label>
 
                         <div class="col-sm-6">
-                            @if (Auth::user()->isAdmin())
-                                <input id="name" type="text" class="form-control input-sized" name="name" value="{{ old('name', $mailbox->name) }}" maxlength="40" required autofocus>
-                            @else
-                                {{ old('name', $mailbox->name) }}
-                            @endif
+                            <input id="name" type="text" class="form-control input-sized" name="name" value="{{ old('name', $mailbox->name) }}" maxlength="40" required autofocus>
+
                             @include('partials/field_error', ['field'=>'name'])
                         </div>
                     </div>
@@ -39,11 +36,7 @@
                         <label for="email" class="col-sm-2 control-label">{{ __('Email Address') }}</label>
 
                         <div class="col-sm-6">
-                            @if (Auth::user()->isAdmin())
                             <input id="email" type="email" class="form-control input-sized" name="email" value="{{ old('email', $mailbox->email) }}" maxlength="128" required autofocus>
-                            @else
-                                {{ old('email', $mailbox->email) }}
-                            @endif
                             @include('partials/field_error', ['field'=>'email'])
                         </div>
                     </div>
@@ -57,7 +50,7 @@
 
                                 <i class="glyphicon glyphicon-info-sign icon-info" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="left"  data-content="{{ __('Aliases are other email addresses that also forward to your mailbox address. Separate each email with a comma.') }}"></i>
                             </div>
-
+                            
                             @include('partials/field_error', ['field'=>'aliases'])
                         </div>
                     </div>
@@ -71,7 +64,7 @@
 
                                 <i class="glyphicon glyphicon-info-sign icon-info" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="left"  data-content="{{ __('Send a copy of all outgoing replies to specific external addresses.') }} {{ __('Separate each email with a comma.') }}"></i>
                             </div>
-
+                            
                             @include('partials/field_error', ['field'=>'auto_bcc'])
                         </div>
                     </div>
@@ -118,13 +111,13 @@
                     </div>
 
                     @action('mailbox.update.after_ticket_status', $mailbox)
-
+                    
                     {{-- Email Template option hidden until somebody needs it --}}
                     <div class="form-group{{ $errors->has('template') ? ' has-error' : '' }}" style="display:none">
                         <label for="template" class="col-sm-2 control-label">{{ __('Email Template') }} (todo)</label>
 
                         <div class="col-sm-6">
-
+     
                             <div class="controls">
                                 {{-- Afer implementing remove readonly--}}
                                 <label for="template_plain" class="radio inline plain"><input type="radio" name="template" value="{{ App\Mailbox::TEMPLATE_PLAIN }}" disabled="disabled" class="disabled" id="template_plain" @if (old('template', $mailbox->template) == App\Mailbox::TEMPLATE_PLAIN || !$mailbox->template)checked="checked"@endif> {{ __('Plain Template') }}</label>
@@ -162,8 +155,17 @@
 
                                 <i class="glyphicon glyphicon-info-sign icon-info" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="left"  data-content="{{ __('This text will be added to the beginning of each email reply sent to a customer.') }}"></i>
                             </div>
-
+                            
                             @include('partials/field_error', ['field'=>'before_reply'])
+                        </div>
+                    </div>
+
+                    <div class="form-group{{ $errors->has('signature') ? ' has-error' : '' }}">
+                        <label for="signature" class="col-sm-2 control-label">{{ __('Email Signature') }}</label>
+
+                        <div class="col-md-9 signature-editor">
+                            <textarea id="signature" class="form-control" name="signature" rows="8">{{ old('signature', $mailbox->signature) }}</textarea>
+                            @include('partials/field_error', ['field'=>'signature'])
                         </div>
                     </div>
 
@@ -173,9 +175,7 @@
                                 {{ __('Save') }}
                             </button>
 
-                            @if (auth()->user()->isAdmin())
                             <a href="#" data-trigger="modal" data-modal-body="#delete_mailbox_modal" data-modal-no-footer="true" data-modal-title="{{ __('Delete the :mailbox_name mailbox?', ['mailbox_name' => $mailbox->name]) }}" data-modal-on-show="deleteMailboxModal" class="btn btn-link text-danger">{{ __('Delete mailbox') }}</a>
-                            @endif
                         </div>
                     </div>
                 </form>
