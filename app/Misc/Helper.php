@@ -1363,9 +1363,4 @@ class Helper
     {
         return (bool)app('request')->input('print');
     }
-
-    public static function isDev()
-    {
-        return config('app.env') != 'production';
-    }
 }
