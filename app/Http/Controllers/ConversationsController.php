@@ -315,12 +315,6 @@ class ConversationsController extends Controller
             }
         }
 
-        $to = [];
-
-        if ($request->get('to')) {
-            $to = [$request->get('to')];
-        }
-
         return view('conversations/create', [
             'conversation' => $conversation,
             'thread'       => $thread,
@@ -328,7 +322,7 @@ class ConversationsController extends Controller
             'folder'       => $folder,
             'folders'      => $mailbox->getAssesibleFolders(),
             'after_send'   => $after_send,
-            'to'           => $to,
+            'to'           => [],
         ]);
     }
 
@@ -654,6 +648,11 @@ class ConversationsController extends Controller
                     $prev_status = $conversation->status;
 
                     $conversation->status = $request->status;
+                    if (Conversation::STATUS_CLOSED === $conversation->status) {
+                        $conversation->closed_by_user_id = $request->user_id;
+                        $conversation->closed_at = date('Y-m-d H:i:s');
+                    }
+
                     // We need to set state, as it may have been a draft
                     $conversation->state = Conversation::STATE_PUBLISHED;
                     // Set assignee
