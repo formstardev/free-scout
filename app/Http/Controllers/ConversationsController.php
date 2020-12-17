@@ -315,6 +315,13 @@ class ConversationsController extends Controller
             }
         }
 
+        $to = [];
+
+        $prefill_to = \App\Email::sanitizeEmail($request->get('to'));
+        if ($prefill_to) {
+            $to = [$prefill_to];
+        }
+
         return view('conversations/create', [
             'conversation' => $conversation,
             'thread'       => $thread,
@@ -322,7 +329,7 @@ class ConversationsController extends Controller
             'folder'       => $folder,
             'folders'      => $mailbox->getAssesibleFolders(),
             'after_send'   => $after_send,
-            'to'           => [],
+            'to'           => $to,
         ]);
     }
 
