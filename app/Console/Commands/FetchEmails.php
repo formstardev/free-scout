@@ -153,15 +153,12 @@ class FetchEmails extends Command
             // }
         }
 
-        $unseen = \Eventy::filter('fetch_emails.unseen', $this->option('unseen'), $mailbox);
-        $this->line('['.date('Y-m-d H:i:s').'] Fetching: '.($unseen ? 'UNREAD' : 'ALL'));
-
         foreach ($folders as $folder) {
             $this->line('['.date('Y-m-d H:i:s').'] Folder: '.$folder->name);
 
             // Get unseen messages for a period
             $messages = $folder->query()->since(now()->subDays($this->option('days')))->leaveUnread();
-            if ($unseen) {
+            if ($this->option('unseen')) {
                 $messages->unseen();
             }
             if ($no_charset) {
@@ -176,7 +173,7 @@ class FetchEmails extends Command
                 // Solution for MS mailboxes.
                 // https://github.com/freescout-helpdesk/freescout/issues/176
                 $messages = $folder->query()->since(now()->subDays($this->option('days')))->leaveUnread()->setCharset(null);
-                if ($unseen) {
+                if ($this->option('unseen')) {
                     $messages->unseen();
                 }
                 $messages = $messages->get();
