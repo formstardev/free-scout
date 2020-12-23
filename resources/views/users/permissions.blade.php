@@ -14,69 +14,37 @@
 
     @include('partials/flash_messages')
 
-    <div class="container form-container">
+    <div class="row-container">
         <div class="row">
+            <div class="col-xs-12">
+                <h3> {{ __(':first_name has access to the selected mailboxes:', ['first_name' => $user->first_name]) }}</h3>
+            </div>
+            <div class="col-xs-12">
+                <form method="POST" action="">
+                    {{ csrf_field() }}
 
-            <form method="POST" action="">
+                    <p><a href="javascript:void(0)" class="sel-all">{{ __('all') }}</a> / <a href="javascript:void(0)" class="sel-none">{{ __('none') }}</a></p>
 
-                {{ csrf_field() }}
-
-                @if (count($mailboxes))
-                    <div class="col-xs-12">
-                        <h3> {{ __(':first_name has access to the selected mailboxes:', ['first_name' => $user->first_name]) }}</h3>
-                    </div>
-                    <div class="col-xs-12">
-
-                        <p><a href="javascript:void(0)" class="sel-all">{{ __('all') }}</a> / <a href="javascript:void(0)" class="sel-none">{{ __('none') }}</a></p>
-
-                        <fieldset id="permissions-fields">
-                            @foreach ($mailboxes as $mailbox)
-                                <div class="control-group">
-                                    <div class="controls">
-                                        <label class="control-label checkbox" for="mailbox-{{ $mailbox->id }}">
-                                            <input type="checkbox" name="mailboxes[]" id="mailbox-{{ $mailbox->id }}" value="{{ $mailbox->id }}" @if ($user_mailboxes->contains($mailbox)) checked="checked" @endif> {{ $mailbox->name }}
-                                        </label>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </fieldset>
-                        @if ($user->isAdmin())
-                            <div class="form-group margin-top">
-                                
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Save Permissions') }}
-                                </button>
-                            
-                            </div>
-                        @endif
-                    </div>
-                @endif
-
-                @if (!$user->isAdmin())
-                    <div class="col-xs-12 margin-top">
-                        <h3> {{ __('User Permissions') }}</h3>
-                    </div>
-                    <div class="col-xs-12">
-
-                        @foreach (App\User::getUserPermissionsList() as $permission_id)
+                    <fieldset id="permissions-fields">
+                        @foreach ($mailboxes as $mailbox)
                             <div class="control-group">
-                                <label class="checkbox" for="user_permission_{{ $permission_id }}">
-                                    <input type="checkbox" name="user_permissions[]" value="{{ $permission_id }}" id="user_permission_{{ $permission_id }}" @if ($user->hasPermission($permission_id)) checked="checked" @endif> @if ($user->hasPermission($permission_id, false) != $user->hasPermission($permission_id)) <span style="font-weight:bold">@else<span>@endif{{ App\User::getUserPermissionName($permission_id) }}</span>
-                                </label>
+                                <div class="controls">
+                                    <label class="control-label checkbox" for="mailbox-{{ $mailbox->id }}">
+                                        <input type="checkbox" name="mailboxes[]" id="mailbox-{{ $mailbox->id }}" value="{{ $mailbox->id }}" @if ($user_mailboxes->contains($mailbox)) checked="checked" @endif> {{ $mailbox->name }}
+                                    </label>
+                                </div>
                             </div>
                         @endforeach
-
-                        <div class="form-group margin-top">
-                            
-                            <button type="submit" class="btn btn-primary">
-                                {{ __('Save Permissions') }}
-                            </button>
+                    </fieldset>
+                    <div class="form-group margin-top">
                         
-                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            {{ __('Save Permissions') }}
+                        </button>
+                    
                     </div>
-                @endif
-
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 @endsection

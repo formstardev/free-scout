@@ -111,10 +111,6 @@ class User extends Authenticatable
      */
     protected $fillable = ['role', 'status', 'first_name', 'last_name', 'email', 'password', 'role', 'timezone', 'photo_url', 'type', 'emails', 'job_title', 'phone', 'time_format', 'enable_kb_shortcuts', 'locale'];
 
-    protected $casts = [
-        'permissions' => 'array',
-    ];
-    
     /**
      * For array_unique function.
      *
@@ -555,7 +551,7 @@ class User extends Authenticatable
         if (!empty($user_permission_names[$user_permission])) {
             return $user_permission_names[$user_permission];
         } else {
-            return \Eventy::filter('user_permissions.name', '', $user_permission);
+            return \Event::fire('filter.user_permission_name', [$user_permission]);
         }
     }
 
@@ -807,44 +803,14 @@ class User extends Authenticatable
         $this->photo_url = '';
     }
 
-    public function hasPermission($permission, $check_own_permissions = true)
+    public function hasPermission($permission)
     {
-        $has_permission = false;
-
-        $global_permissions = self::getGlobalUserPermissions();
-
-        if (!empty($global_permissions) && is_array($global_permissions) && in_array($permission, $global_permissions)) {
-            $has_permission = true;
+        $permissions = Option::get('user_permissions');
+        if (!empty($permissions) && is_array($permissions) && in_array($permission, $permissions)) {
+            return true;
+        } else {
+            return false;
         }
-
-        if ($check_own_permissions && !empty($this->permissions)) {
-            if (isset($this->permissions[$permission])) {
-                $has_permission = (bool)$this->permissions[$permission];
-            }
-        }
-
-        return $has_permission;
-    }
-
-    public static function getGlobalUserPermissions()
-    {
-        $permissions = [];
-        $permissions_json = config('app.user_permissions');
-
-        if ($permissions_json) {
-            $permissions_json = base64_decode($permissions_json);
-            try {
-                $permissions = json_decode($permissions_json, true);
-            } catch (\Exception $e) {
-                // Do nothing.
-            }
-        }
-
-        if (!is_array($permissions)) {
-            $permissions = [];
-        }
-
-        return $permissions;
     }
 
     /**
@@ -1012,10 +978,5 @@ class User extends Authenticatable
         }, SORT_STRING | SORT_FLAG_CASE);
 
         return $users;
-    }
-
-    public static function getUserPermissionsList()
-    {
-        return \Eventy::filter('user_permissions.list', self::$user_permissions);
     }
 }
