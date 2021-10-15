@@ -233,13 +233,7 @@ class Attachment extends Model
         if ($view) {
             $headers['Content-Disposition'] = '';
         }
-        $file_name = $this->file_name;
-
-        if ($file_name == "RFC822"){
-            $file_name = $file_name.'.eml';
-        }
-
-        return $this->getDisk()->download($this->getStorageFilePath(), $file_name, $headers);
+        return $this->getDisk()->download($this->getStorageFilePath(), $this->file_name, $headers);
     }
 
     private function getDisk() {

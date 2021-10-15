@@ -1042,8 +1042,6 @@ class Thread extends Model
             $conversation->setBcc($bcc);
         }
 
-        $update_folder = false;
-
         if ($thread->isReply()) {
             $conversation->last_reply_at = $now;
             if ($is_customer) {
