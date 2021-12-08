@@ -664,9 +664,7 @@ class FetchEmails extends Command
         if ($prev_thread) {
             $conversation = $prev_thread->conversation;
 
-            // If reply came from another customer: change customer, add original as CC.
-            // If FreeScout will not change the customer, the reply will be shown 
-            // as coming from the original customer (not the real sender) and cause confusion.
+            // If reply came from another customer: change customer, add original as CC
             if ($conversation->customer_id != $customer->id) {
                 $prev_customer_id = $conversation->customer_id;
                 $prev_customer_email = $conversation->customer_email;
