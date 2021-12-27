@@ -34,10 +34,6 @@ class PublicController extends Controller
         }
         $user = User::where('invite_hash', $hash)->first();
 
-        if ($user && $user->locale) {
-            \Helper::setLocale($user->locale);
-        }
-
         return view('public/user_setup', ['user' => $user]);
     }
 
