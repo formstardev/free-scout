@@ -75,12 +75,8 @@ class FetchEmails extends Command
 
         $this->extra_import = [];
 
-        if (Mailbox::getInProtocols() === Mailbox::$in_protocols) {
-            $this->mailboxes = Mailbox::get();
-        } else {
-            // Get active mailboxes with the default in_protocols
-            $this->mailboxes = Mailbox::whereIn('in_protocol', array_keys(Mailbox::$in_protocols))->get();
-        }
+        // Get active mailboxes
+        $this->mailboxes = Mailbox::get();
 
         foreach ($this->mailboxes as $mailbox) {
             if (!$mailbox->isInActive()) {
