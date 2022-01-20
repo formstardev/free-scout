@@ -386,7 +386,7 @@ function initModals(html_tag)
 	if (typeof(html_tag) == "undefined") {
 		html_tag = 'a';
 	}
-	$(html_tag+'[data-trigger="modal"][data-modal-applied!="1"]').attr('data-modal-applied', '1').click(function(e) {
+	$(html_tag+'[data-trigger="modal"][data-modal-applied!="1"],.fs-trigger-modal[data-modal-applied!="1"]').attr('data-modal-applied', '1').click(function(e) {
     	triggerModal($(this));
     	e.preventDefault();
 	});
@@ -2377,9 +2377,7 @@ function loadConversations(page, table, no_loader)
 			folder_id: getGlobalAttr('folder_id'),
 			filter: filter,
 			params: params,
-			page: page,
-			sortBy: getGlobalAttr('sort_by'),
-			order: getGlobalAttr('order')
+			page: page
 		},
 		laroute.route('conversations.ajax'),
 		function(response) {
