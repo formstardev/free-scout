@@ -293,9 +293,9 @@ class Thread extends Model
     /**
      * Convert body to plain text.
      */
-    public function getBodyAsText($options = array())
+    public function getBodyAsText()
     {
-        return \Helper::htmlToText($this->body, true, $options);
+        return \Helper::htmlToText($this->body, true);
     }
 
     public function getBodyWithFormatedLinks(string $body = '') :string
@@ -592,7 +592,7 @@ class Thread extends Model
                     $assignee = htmlspecialchars($assignee);
                 }
                 if ($conversation_number) {
-                    $did_this = __(':person assigned :assignee conversation #:conversation_number', ['assignee' => $assignee, 'conversation_number' => $conversation_number]);
+                    $did_this = __(':person assigned :assignee convsersation #:conversation_number', ['assignee' => $assignee, 'conversation_number' => $conversation_number]);
                 } else {
                     $did_this = __(":person assigned to :assignee", ['assignee' => $assignee]);
                 }
@@ -621,11 +621,7 @@ class Thread extends Model
                     if ($merge_conversation) {
                         $merge_conversation_number = $merge_conversation->number;
                     }
-                    if ($merge_conversation) {
-                        $did_this = __(":person merged into conversation #:conversation_number", ['conversation_number' => '<a href="'.$merge_conversation->url().'" class="link-black">'.$merge_conversation_number.'</a>']);
-                    } else {
-                        $did_this = __(":person merged into conversation #:conversation_number", ['conversation_number' => $merge_conversation_number]);
-                    }
+                    $did_this = __(":person merged into conversation #:conversation_number", ['conversation_number' => $merge_conversation_number]);
                 }
             }
         } elseif ($this->state == self::STATE_DRAFT) {
