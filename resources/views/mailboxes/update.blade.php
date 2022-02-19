@@ -179,8 +179,6 @@
                             </div>
                         </div>
                     @endif
-                    
-                    @action('mailboxes.view_after_settings_on_update', $mailbox)
 
                     <div class="form-group">
                         <div class="col-sm-6 col-sm-offset-2">

@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Email;
-use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Watson\Rememberable\Rememberable;
@@ -844,20 +842,5 @@ class Mailbox extends Model
         $meta = $this->meta;
         $meta[$param] = $value;
         $this->meta = $meta;
-    }
-
-    /**
-     * Check if there is a user with specified email.
-     */
-    public static function userEmailExists($email)
-    {
-        $email = Email::sanitizeEmail($email);
-        $user = User::where('email', $email)->first();
-
-        if ($user) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
