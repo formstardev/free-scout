@@ -442,8 +442,6 @@ function mailboxUpdateInit(from_name_custom)
 				}
 			}
 		});
-
-		fsDoAction('mailbox.update_init');
 	});
 }
 
@@ -1531,7 +1529,6 @@ function convEditorInit()
 		onReplyBlur();
 	});
 
-	fsDoAction('conv_editor_init');
 
 	// Autosave draft periodically
 	autosaveDraft();
