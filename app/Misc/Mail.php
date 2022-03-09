@@ -45,6 +45,8 @@ class Mail
     const FETCH_SCHEDULE_EVERY_THIRTY_MINUTES = 30;
     const FETCH_SCHEDULE_HOURLY = 60;
 
+    const OAUTH_PROVIDER_MICROSOFT = 'ms';
+
     /**
      * If reply is not extracted properly from the incoming email, add here a new separator.
      * Order is not important.
@@ -563,15 +565,60 @@ class Mail
      */
     public static function getMailboxClient($mailbox)
     {
-        return new \Webklex\IMAP\Client([
-            'host'          => $mailbox->in_server,
-            'port'          => $mailbox->in_port,
-            'encryption'    => $mailbox->getInEncryptionName(),
-            'validate_cert' => $mailbox->in_validate_cert,
-            'username'      => $mailbox->in_username,
-            'password'      => $mailbox->in_password,
-            'protocol'      => $mailbox->getInProtocolName(),
-        ]);
+        if (!$mailbox->oauthEnabled()) {
+            return new \Webklex\IMAP\Client([
+                'host'          => $mailbox->in_server,
+                'port'          => $mailbox->in_port,
+                'encryption'    => $mailbox->getInEncryptionName(),
+                'validate_cert' => $mailbox->in_validate_cert,
+                'username'      => $mailbox->in_username,
+                'password'      => $mailbox->in_password,
+                'protocol'      => $mailbox->getInProtocolName(),
+            ]);
+        } else {
+
+            \Config::set('imap.accounts.default', [
+                'host'          => $mailbox->in_server,
+                'port'          => $mailbox->in_port,
+                'encryption'    => $mailbox->getInEncryptionName(),
+                'validate_cert' => $mailbox->in_validate_cert,
+                'username'      => $mailbox->email,
+                'password'      => $mailbox->oauthGetParam('a_token'),
+                'protocol'      => $mailbox->getInProtocolName(),
+                'authentication' => 'oauth',
+            ]);
+            // To enable debug: /vendor/webklex/php-imap/src/Connection/Protocols
+            // Debug in console
+            if (app()->runningInConsole()) {
+                \Config::set('imap.options.debug', config('app.debug'));
+            }
+
+            $cm = new \Webklex\PHPIMAP\ClientManager(config('imap'));
+
+            // Refresh Access Token.
+            if ((strtotime($mailbox->oauthGetParam('issued_on')) + (int)$mailbox->oauthGetParam('expires_in')) < time()) {
+                // Try to get an access token (using the authorization code grant)
+                $token_data = \MailHelper::oauthGetAccessToken(\MailHelper::OAUTH_PROVIDER_MICROSOFT, [
+                    'client_id' => $mailbox->in_username,
+                    'client_secret' => $mailbox->in_password,
+                    'refresh_token' => $mailbox->oauthGetParam('r_token'),
+                ]);
+
+                if (!empty($token_data['a_token'])) {
+                    $mailbox->setMetaParam('oauth', $token_data, true);
+                } elseif (!empty($token_data['error'])) {
+                    $error_message = 'Error occurred refreshing oAuth Access Token: '.$token_data['error'];
+                    \Helper::log(\App\ActivityLog::NAME_EMAILS_FETCHING, 
+                        \App\ActivityLog::DESCRIPTION_EMAILS_FETCHING_ERROR, [
+                        'error'   => $error_message,
+                        'mailbox' => $mailbox->name,
+                    ]);
+                    throw new \Exception($error_message, 1);
+                }
+            }
+
+            return $cm->account('default');
+        }
     }
 
     /**
@@ -640,4 +687,131 @@ class Mail
 
         return null;
     }
+
+    public static function oauthGetAuthorizationUrl($provider_code, $params)
+    {
+        $args = [];
+
+        switch ($provider_code) {
+            case self::OAUTH_PROVIDER_MICROSOFT:
+                // https://docs.microsoft.com/en-us/exchange/client-developer/legacy-protocols/how-to-authenticate-an-imap-pop-smtp-application-by-using-oauth
+                $args = [
+                    'scope' => 'offline_access https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send',
+                    'response_type' => 'code',
+                    'approval_prompt' => 'auto',
+                    'redirect_uri' => route('mailboxes.oauth_callback'),
+                ];
+                $args = array_merge($args, $params);
+                $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?'.http_build_query($args);
+                break;
+        }
+
+        return $url;
+    }
+
+    public static function oauthGetAccessToken($provider_code, $params)
+    {
+        $token_data = [];
+        $post_params = [];
+
+        switch ($provider_code) {
+            case self::OAUTH_PROVIDER_MICROSOFT:
+                $post_params = [
+                    'scope' => 'offline_access https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send',
+                    "grant_type" => "authorization_code",
+                    'redirect_uri' => route('mailboxes.oauth_callback'),
+                ];
+
+                $post_params = array_merge($post_params, $params);
+
+                // Refreshing Access Token.
+                if (!empty($post_params['refresh_token'])) {
+                    $post_params['grant_type'] = 'refresh_token';
+                }
+                
+                // $postUrl = "/common/oauth2/token";
+                // $hostname = "login.microsoftonline.com";
+                $full_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+
+                // $headers = array(
+                //     // "POST " . $postUrl . " HTTP/1.1",
+                //     // "Host: login.windows.net",
+                //     "Content-type: application/x-www-form-urlencoded",
+                // );
+
+                $curl = curl_init($full_url);
+
+                curl_setopt($curl, CURLOPT_POST, true);
+                //curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $post_params);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, array("application/x-www-form-urlencoded"));
+                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+                $response = curl_exec($curl);
+
+                if ($response) {
+                    $result = json_decode($response, true);
+
+                    // [token_type] => Bearer
+                    // [scope] => IMAP.AccessAsUser.All offline_access SMTP.Send User.Read
+                    // [expires_in] => 4514
+                    // [ext_expires_in] => 4514
+                    // [expires_on] => 1646122657
+                    // [not_before] => 1646117842
+                    // [resource] => 00000002-0000-0000-c000-000000000000
+                    // [access_token] => dd
+                    // [refresh_token] => dd
+                    // [id_token] => dd
+                    if (!empty($result['access_token'])) {
+                        $token_data['provider'] = self::OAUTH_PROVIDER_MICROSOFT;
+                        $token_data['a_token'] = $result['access_token'];
+                        $token_data['r_token'] = $result['refresh_token'];
+                        //$token_data['id_token'] = $result['id_token'];
+                        $token_data['issued_on'] = now()->toDateTimeString();
+                        $token_data['expires_in'] = $result['expires_in'];
+                    } elseif ($response) {
+                        $token_data['error'] = $response;
+                    } else {
+                        $token_data['error'] = 'Response code: '.curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    }
+                }
+                curl_close($curl);
+
+                break;
+        }
+
+        return $token_data;
+    }
+
+    public static function oauthDisconnect($provider_code, $redirect_uri)
+    {
+        switch ($provider_code) {
+            case self::OAUTH_PROVIDER_MICROSOFT:
+                return redirect()->away('https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri='.urlencode($redirect_uri));
+            break;
+        }
+    }
+
+    // public static function oauthGetProvider($provider_code, $params)
+    // {
+    //     $provider = null;
+
+    //     switch ($provider_code) {
+    //         case self::OAUTH_PROVIDER_MICROSOFT:
+    //             $provider = new \Stevenmaguire\OAuth2\Client\Provider\Microsoft([
+    //                 // Required
+    //                 'clientId'                  => $params['client_id'],
+    //                 'clientSecret'              => $params['client_secret'],
+    //                 'redirectUri'               => route('mailboxes.oauth_callback'),
+    //                 //https://login.microsoftonline.com/common/oauth2/authorize';
+    //                 'urlAuthorize'              => 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+    //                 'urlAccessToken'            => 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+    //                 'urlResourceOwnerDetails'   => 'https://outlook.office.com/api/v1.0/me'
+    //             ]);
+    //             break;
+    //     }
+
+    //     return $provider;
+    // }
 }
