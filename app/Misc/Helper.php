@@ -1403,14 +1403,11 @@ class Helper
         return \DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'mysql';
     }
 
-<<<<<<< HEAD
     public static function isPgSql()
     {
         return \DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'pgsql';
     }
 
-=======
->>>>>>> 516e02be (Reverse the format of file Helper.php)
     public static function humanFileSize($size, $unit="")
     {
         if ((!$unit && $size >= 1<<30) || $unit == "GB") {
