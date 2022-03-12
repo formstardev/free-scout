@@ -46,9 +46,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('freescout:update-folder-counters')
             ->hourly();
 
-        $crc = crc32(config('app.key'));
         $schedule->command('freescout:module-check-licenses')
-            ->cron((int)($crc % 59).' '.(int)($crc % 23).' * * *');
+            ->daily();
 
         // Check if user finished viewing conversation.
         $schedule->command('freescout:check-conv-viewers')

@@ -57,10 +57,6 @@ class SendNotificationToUsers implements ShouldQueue
         $headers = [];
         $last_thread = $this->threads->first();
 
-        if (!$last_thread) {
-            return;
-        }
-
         // If thread is draft, it means it has been undone
         if ($last_thread->isDraft()) {
             return;

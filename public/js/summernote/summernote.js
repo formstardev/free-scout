@@ -94,7 +94,7 @@ var dropdown = renderer.create('<div class="dropdown-menu">', function ($node, o
         var option = (typeof item === 'object') ? item.option : undefined;
         var dataValue = 'data-value="' + value + '"';
         var dataOption = (option !== undefined) ? ' data-option="' + option + '"' : '';
-        return '<li aria-label="' + value + '"><a href="#" ' + (dataValue + dataOption) + '>' + content + '</a></li>';
+        return '<li><a href="#" ' + (dataValue + dataOption) + '>' + content + '</a></li>';
     }).join('') : options.items;
     $node.html(markup);
 });
@@ -204,8 +204,7 @@ var ui = {
         return renderer.create('<button type="button" class="note-btn btn btn-default btn-sm" tabindex="-1">', function ($node, options) {
             if (options && options.tooltip) {
                 $node.attr({
-                    title: options.tooltip,
-                    'aria-label': options.tooltip
+                    title: options.tooltip
                 }).tooltip({
                     container: options.container,
                     trigger: 'hover',
@@ -5458,7 +5457,7 @@ var Buttons = /** @class */ (function () {
             return _this.button({
                 className: 'btn-codeview',
                 contents: _this.ui.icon(_this.options.icons.code),
-                tooltip: _this.lang.options.codeview,
+                tooltip: _this.options.codeview,
                 click: _this.context.createInvokeHandler('codeview.toggle')
             }).render();
         });

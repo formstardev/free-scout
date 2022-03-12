@@ -2,15 +2,16 @@
 
 namespace App\Misc;
 
+use Zttp\Zttp;
+
 class WpApi
 {
     const ENDPOINT_MODULES = 'freescout/v1/modules';
 
-    const METHOD_GET = 'GET';
-    const METHOD_POST = 'POST';
+    const METHOD_GET = 'get';
+    const METHOD_POST = 'post';
 
     const ACTION_CHECK_LICENSE = 'check_license';
-    const ACTION_CHECK_LICENSES = 'check_licenses';
     const ACTION_ACTIVATE_LICENSE = 'activate_license';
     const ACTION_DEACTIVATE_LICENSE = 'deactivate_license';
     const ACTION_GET_VERSION = 'get_version';
@@ -27,23 +28,6 @@ class WpApi
         }
     }
 
-    public static function httpRequest($method, $url, $params)
-    {
-        $client = new \GuzzleHttp\Client();
-
-        if ($method == self::METHOD_POST) {
-            return $client->request('POST', $url, [
-                'connect_timeout' => 10,
-                'form_params' => $params,
-            ]);
-        } else {
-            return $client->request('GET', $url, [
-                'connect_timeout' => 10,
-                'query' => $params,
-            ]);
-        }
-    }
-
     /**
      * API request.
      */
@@ -51,13 +35,14 @@ class WpApi
     {
         self::$lastError = null;
 
+        $options = ['connect_timeout' => 7]; // seconds
+
         try {
-            $response = self::httpRequest($method, self::url($endpoint, $alternative_api), $params);
+            $response = Zttp::withOptions($options)->$method(self::url($endpoint, $alternative_api), $params);
         } catch (\Exception $e) {
             if (!$alternative_api) {
                 return self::request($method, $endpoint, $params, true);
             }
-            \Helper::logException($e, 'WpApi');
             self::$lastError = [
                 'code'    => $e->getCode(),
                 'message' => $e->getMessage(),
@@ -67,9 +52,8 @@ class WpApi
         }
 
         // https://guzzle3.readthedocs.io/http-client/response.html
-        if ($response->getStatusCode() < 500) {
-            $json = \Helper::jsonToArray($response->getBody());
-
+        if ($response->status() < 500) {
+            $json = $response->json();
             if (!empty($json['code']) && !empty($json['message']) &&
                 !empty($json['data']) && !empty($json['data']['status']) && $json['data']['status'] != 200
             ) {
@@ -104,18 +88,6 @@ class WpApi
         if (!empty($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
-
-        return self::request(self::METHOD_POST, $endpoint, $params);
-    }
-
-    /**
-     * Check module license.
-     */
-    public static function checkLicenses($params)
-    {
-        $params['action'] = self::ACTION_CHECK_LICENSES;
-
-        $endpoint = self::ENDPOINT_MODULES;
 
         return self::request(self::METHOD_POST, $endpoint, $params);
     }

@@ -2,9 +2,7 @@ var fs_sidebar_menu_applied = false;
 var fs_loader_timeout;
 var fs_processing_send_reply = false;
 var fs_processing_save_draft = false;
-var fs_send_reply_allowed = true;
 var fs_send_reply_after_draft = false;
-var fs_autosave_note = true;
 var fs_connection_errors = 0;
 var fs_editor_change_timeout = -1;
 // For how long to remember conversation note drafts
@@ -388,7 +386,7 @@ function initModals(html_tag)
 	if (typeof(html_tag) == "undefined") {
 		html_tag = 'a';
 	}
-	$(html_tag+'[data-trigger="modal"][data-modal-applied!="1"],.fs-trigger-modal[data-modal-applied!="1"]').attr('data-modal-applied', '1').click(function(e) {
+	$(html_tag+'[data-trigger="modal"][data-modal-applied!="1"]').attr('data-modal-applied', '1').click(function(e) {
     	triggerModal($(this));
     	e.preventDefault();
 	});
@@ -442,8 +440,6 @@ function mailboxUpdateInit(from_name_custom)
 				}
 			}
 		});
-
-		fsDoAction('mailbox.update_init');
 	});
 }
 
@@ -1455,11 +1451,6 @@ function getGlobalAttr(attr)
 	return $("body:first").attr('data-'+attr);
 }
 
-function setGlobalAttr(attr, value)
-{
-	return $("body:first").attr('data-'+attr, value);
-}
-
 // Initialize conversation body editor
 function convEditorInit()
 {
@@ -1531,7 +1522,6 @@ function convEditorInit()
 		onReplyBlur();
 	});
 
-	fsDoAction('conv_editor_init');
 
 	// Autosave draft periodically
 	autosaveDraft();
@@ -1893,7 +1883,6 @@ function initReplyForm(load_attachments, init_customer_selector, is_new_conv)
 
 		// Send reply, new conversation or note
 	    $(".btn-reply-submit").click(function(e) {
-	
 	    	// This is extra protection from double click on Send button
 	    	// DOM operation are slow sometimes
 	    	if (fs_processing_send_reply) {
@@ -1912,57 +1901,50 @@ function initReplyForm(load_attachments, init_customer_selector, is_new_conv)
 	    		return;
 	    	}
 
+	    	if (!fsApplyFilter('conversation.can_submit', true)) {
+	    		fs_processing_send_reply = false;
+	    		return;
+	    	}
+
+	    	button.button('loading');
+
 	    	// If draft is being sent, we need to wait and send reply after draft has been saved.
 	    	if (fs_processing_save_draft) {
 	    		fs_send_reply_after_draft = true;
 	    		return;
 	    	}
 
-	    	if (!fsApplyFilter('conversation.can_submit', true, {trigger: button, form: form})) {
-	    		fs_processing_send_reply = false;
-	    		return;
-	    	}
-
-	    	// For previous filter
-	    	if (!fs_send_reply_allowed) {
-	    		fs_processing_send_reply = false;
-	    		return;
-	    	}
-
-			data = form.serialize();
+	    	data = form.serialize();
 	    	data += '&action=send_reply';
 
-	    	button.button('loading');
-
 			fsAjax(data, laroute.route('conversations.ajax'), function(response) {
-					if (typeof(response.status) != "undefined" && response.status == 'success') {
-						// Forget note
-						if (isNote()) {
-							fs_autosave_note = false;
-							forgetNote(getGlobalAttr('conversation_id'));
-						}
-						if (typeof(response.redirect_url) != "undefined") {
-							window.location.href = response.redirect_url;
-						} else {
-							window.location.href = '';
-						}
-					} else {
-						showAjaxError(response);
-						button.button('reset');
+				if (typeof(response.status) != "undefined" && response.status == 'success') {
+					// Forget note
+					if (isNote()) {
+						forgetNote(getGlobalAttr('conversation_id'));
 					}
-					loaderHide();
-					fs_processing_send_reply = false;
-				},
-				true,
-				function() {
-					showFloatingAlert('error', Lang.get("messages.ajax_error"));
-					loaderHide();
+					if (typeof(response.redirect_url) != "undefined") {
+						window.location.href = response.redirect_url;
+					} else {
+						window.location.href = '';
+					}
+				} else {
+					showAjaxError(response);
 					button.button('reset');
-					fs_processing_send_reply = false;
-				});
+				}
+				loaderHide();
+				fs_processing_send_reply = false;
+			},
+			true,
+			function() {
+				showFloatingAlert('error', Lang.get("messages.ajax_error"));
+				loaderHide();
+				button.button('reset');
+				fs_processing_send_reply = false;
+			});
 
 			e.preventDefault();
-		})
+		});
 	});
 }
 
@@ -2016,8 +1998,6 @@ function notificationsInit()
 }
 
 function getQueryParam(name, qs) {
-	var arrays_without_indexes = {};
-
 	if (typeof(qs) == "undefined") {
 		qs = document.location.search;
 	}
@@ -2028,27 +2008,12 @@ function getQueryParam(name, qs) {
         re = /[?&]?([^=]+)=([^&]*)/g;
 
     while (tokens = re.exec(qs)) {
-    	key = decodeURIComponent(tokens[1]);
-
-        // Arrays without indexes - []
-        if (/\[\]$/.test(key)) {
-        	if (typeof(arrays_without_indexes[key]) == "undefined") {
-        		arrays_without_indexes[key] = 0;
-        	} else {
-        		arrays_without_indexes[key]++;
-        	}
-        	parsed_key = /(.*)\[\]$/.exec(key);
-        	if (typeof(parsed_key[1]) != "undefined") {
-        		key = parsed_key[1]+'['+arrays_without_indexes[key]+']';
-        	}
-        }
-        params[key] = decodeURIComponent(tokens[2]);
+        params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
     }
 
     // Process arrays
     for (var param in params) {
     	
-    	// Two dimentional
     	var m = param.match(/^([^\[]+)\[([^\[]+)\]$/i);
 
     	if (m && m.length) {
@@ -2057,21 +2022,6 @@ function getQueryParam(name, qs) {
     		}
     		if (typeof(params[m[1]]) == "object") {
     			params[m[1]][m[2]] = params[param];
-    		}
-    	}
-
-    	// Three dimentional
-    	var m = param.match(/^([^\[]+)\[([^\[]+)\]\[([^\[]+)\]$/i);
-
-    	if (m && m.length) {
-    		if (typeof(params[m[1]]) == "undefined") {
-    			params[m[1]] = {};
-    		}
-    		if (typeof(params[m[1]]) == "object") {
-    			if (typeof(params[m[1]][m[2]]) == "undefined") {
-    				params[m[1]][m[2]] = {};
-    			}
-    			params[m[1]][m[2]][m[3]] = params[param];
     		}
     	}
     }
@@ -2389,7 +2339,6 @@ function loadConversations(page, table, no_loader)
 {
 	var filter = null;
 	var params = {};
-	var sorting = {};
 
 	if ($('body:first').hasClass('body-search')) {
 		filter = {
@@ -2410,9 +2359,6 @@ function loadConversations(page, table, no_loader)
 	var datas = table.data();
 	for (data_name in datas) {
 		if (/^filter_/.test(data_name)) {
-			if (filter == null) {
-				filter = {};
-			}
 			filter[data_name.replace(/^filter_/, '')] = datas[data_name];
 		}
 	}
@@ -2424,13 +2370,6 @@ function loadConversations(page, table, no_loader)
 		}
 	}
 
-	// Sorting
-	for (data_name in datas) {
-		if (/^sorting_/.test(data_name)) {
-			sorting[data_name.replace(/^sorting_/, '')] = datas[data_name];
-		}
-	}
-
 	fsAjax(
 		{
 			action: 'conversations_pagination',
@@ -2438,8 +2377,7 @@ function loadConversations(page, table, no_loader)
 			folder_id: getGlobalAttr('folder_id'),
 			filter: filter,
 			params: params,
-			page: page,
-			sorting: sorting
+			page: page
 		},
 		laroute.route('conversations.ajax'),
 		function(response) {
@@ -2449,7 +2387,6 @@ function loadConversations(page, table, no_loader)
 					conversationPagination();
 					starConversationInit();
 					converstationBulkActionsInit();
-					convListSortingInit();
 					triggersInit();
 				}
 			} else {
@@ -4118,23 +4055,6 @@ function setSummernoteText(jtextarea, text)
 	jtextarea.summernote("code", text);
 }
 
-function convListSortingInit()
-{
-	$('.conv-col-sort').click(function(event) {
-		var table = $(this).parents('.table-conversations:first');
-		table.attr('data-sorting_sort_by', $(this).attr('data-sort-by'));
-		var order = $(this).attr('data-order');
-		if (order == 'asc') {
-			order = 'desc';
-		} else {
-			order = 'asc';
-		}
-		table.attr('data-sorting_order', order);
-
-		loadConversations('', '', true);
-	});
-}
-
 // Star/unstar processing from the list or conversation
 function starConversationInit()
 {
@@ -4186,7 +4106,6 @@ function starConversationInit()
 function conversationsTableInit()
 {
 	converstationBulkActionsInit();
-	convListSortingInit();
 
 	if ("ontouchstart" in window)
 	{
@@ -4360,10 +4279,6 @@ function switchToNote()
 
 function rememberNote()
 {
-	if (!fs_autosave_note) {
-		return;
-	}
-	
 	var conversation_id = getGlobalAttr('conversation_id');
 	if (!conversation_id) {
 		return;
