@@ -611,7 +611,7 @@ class Helper
             imagefill($src, 0, 0, $kek);
         } elseif (preg_match('/gif/i', $mime_type)) {
             $src = imagecreatefromgif($file);
-
+            
             $kek = imagecolorallocate($src, 255, 255, 255);
             imagefill($src, 0, 0, $kek);
         } elseif (preg_match('/bmp/i', $mime_type)) {
@@ -737,7 +737,7 @@ class Helper
     public static function downloadRemoteFile($url, $destinationFilePath)
     {
         $client = new \GuzzleHttp\Client();
-
+        
         $client->request('GET', $url, [
             'sink' => $destinationFilePath,
             'connect_timeout' => 7,
@@ -886,8 +886,8 @@ class Helper
     public static function setEnvFileVar($key, $value)
     {
         $env_path = app()->environmentFilePath();
-        $contents = file_get_contents($env_path);
-
+        $contents = file_get_contents($env_path);        
+        
         if (strstr($value, '"')) {
             // Escape quotes.
             $value = '"'.str_replace('"', '\"', $value).'"';
@@ -1246,7 +1246,7 @@ class Helper
         if (!$html) {
             return $html;
         }
-
+        
         $html = \Purifier::clean($html);
 
         // Remove all kinds of spaces after tags
@@ -1261,7 +1261,7 @@ class Helper
      */
     public static function safePassword($password)
     {
-        return str_repeat("*", mb_strlen($password ?? ''));
+        return str_repeat("*", mb_strlen($password));
     }
 
     /**
@@ -1593,9 +1593,9 @@ class Helper
 
     public static function urlHome()
     {
-        return \Config::get('app.url');
-        // $url = rtrim($url, "/");
-        // return $url.'/home';
+        $url = \Config::get('app.url');
+        $url = rtrim($url, "/");
+        return $url.'/home';
     }
 
     /**
@@ -1613,9 +1613,4 @@ class Helper
         }
         return $url;
     }*/
-
-    public static function isLocaleRtl(): bool
-    {
-        return in_array(app()->getLocale(), config("app.locales_rtl"));
-    }
 }
