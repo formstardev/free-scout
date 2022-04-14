@@ -77,12 +77,10 @@
                     <div class="thread-person">
                         <strong>
                             @if ($thread->type == App\Thread::TYPE_CUSTOMER)
-                                @if ($thread->customer_cached)
-                                    @if (\Helper::isPrint())
-                                        {{ $thread->customer_cached->getFullName(true) }}
-                                    @else
-                                        <a href="{{ $thread->customer_cached->url() }}">{{ $thread->customer_cached->getFullName(true) }}</a>
-                                    @endif
+                                @if (\Helper::isPrint())
+                                    {{ $thread->customer_cached->getFullName(true) }}
+                                @elseif ($thread->customer_cached)
+                                    <a href="{{ $thread->customer_cached->url() }}">{{ $thread->customer_cached->getFullName(true) }}</a>
                                 @endif
                             @else
                                 @if (\Helper::isPrint())
@@ -103,7 +101,6 @@
                     </div>
                     @if ($thread->type != App\Thread::TYPE_NOTE || $thread->isForward())
                         <div class="thread-recipients">
-                            @action('thread.before_recipients', $thread, $loop, $threads, $conversation, $mailbox)
                             @if (($thread->isForward()
                                 || $loop->last
                                 || ($thread->type == App\Thread::TYPE_CUSTOMER && count($thread->getToArray($mailbox->getEmails())))
@@ -135,7 +132,6 @@
                                     {{ implode(', ', $thread->getBccArray()) }}
                                 </div>
                             @endif
-                            @action('thread.after_recipients', $thread, $loop, $threads, $conversation, $mailbox)
                         </div>
                     @endif
                 </div>

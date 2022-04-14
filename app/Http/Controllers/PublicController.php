@@ -101,8 +101,7 @@ class PublicController extends Controller
 
         $user->invite_state = User::INVITE_STATE_ACTIVATED;
         $user->invite_hash = '';
-        
-        $user = \Eventy::filter('user.setup_save', $user, $request);
+
         $user->save();
 
         // Login user
