@@ -182,7 +182,7 @@
                         </div>
                     @endif
                     
-                    @action('mailbox.update.after_signature', $mailbox)
+                    @action('mailboxes.update_after_signature', $mailbox)
 
                     <div class="form-group">
                         <div class="col-sm-6 col-sm-offset-2">
