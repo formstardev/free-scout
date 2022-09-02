@@ -27,7 +27,6 @@ class Mailbox extends Model
     const TICKET_STATUS_ACTIVE = 1;
     const TICKET_STATUS_PENDING = 2;
     const TICKET_STATUS_CLOSED = 3;
-    const TICKET_STATUS_KEEP_CURRENT = 0;
 
     /**
      * Default Assignee.
@@ -35,7 +34,6 @@ class Mailbox extends Model
     const TICKET_ASSIGNEE_ANYONE = 1;
     const TICKET_ASSIGNEE_REPLYING_UNASSIGNED = 2;
     const TICKET_ASSIGNEE_REPLYING = 3;
-    const TICKET_ASSIGNEE_KEEP_CURRENT = 0;
 
     /**
      * Email Template.
