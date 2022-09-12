@@ -1507,6 +1507,7 @@ function convEditorInit()
 		followingToolbar: false,
 		toolbar: fsApplyFilter('conversation.editor_toolbar', fs_conv_editor_toolbar),
 		buttons: fs_conv_editor_buttons,
+        hint: [],
 		callbacks: {
 	 		onImageUpload: function(files) {
 	 			if (!files) {
@@ -4887,11 +4888,6 @@ function getCookie(name)
         "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
     return matches ? decodeURIComponent(matches[1]) : undefined
-}
-
-function deleteCookie(name)
-{
-    document.cookie = name+'=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
 function fsAddAction(action, callback, priority)
