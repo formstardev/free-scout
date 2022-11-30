@@ -340,6 +340,88 @@ class ConversationsController extends Controller
     }
 
     /**
+     * Clone conversation.
+     */
+    public function cloneConversation(Request $request, $mailbox_id, $from_thread_id)
+    {
+        $mailbox = Mailbox::findOrFail($mailbox_id);
+        $this->authorize('view', $mailbox);
+
+        if (!empty($from_thread_id)) {
+            $orig_thread = Thread::find($from_thread_id);
+            
+            if ($orig_thread) {
+                $orign_conv = $orig_thread->conversation;
+                $this->authorize('view', $orign_conv);
+
+
+		        // $thread = $orig_thread->replicate();
+		        // $thread->id = '';
+		        // $thread->message_id .= ".clone".crc32(mktime());
+		        // $thread->status = Thread::STATUS_ACTIVE;
+		        // $thread->conversation_id = $conversation->id;
+		        // $thread->save();
+
+
+                $now = date('Y-m-d H:i:s');
+
+                $conversation = new Conversation();
+                $conversation->type = $orign_conv->type;
+                $conversation->subject = $orign_conv->subject;
+                $conversation->mailbox_id = $orign_conv->mailbox_id;
+                $conversation->preview = '';
+                // Preset source_via here to avoid error in PostgreSQL.
+                $conversation->source_via = $orign_conv->source_via;
+                $conversation->source_type = $orign_conv->source_type;
+                $conversation->customer_id = $orign_conv->customer_id;
+                $conversation->customer_email = $orign_conv->customer->getMainEmail();
+                $conversation->status = Conversation::STATUS_ACTIVE;
+                $conversation->state = Conversation::STATE_PUBLISHED;
+                $conversation->cc = $orig_thread->cc;
+                $conversation->bcc = $orig_thread->bcc;
+                // Set assignee
+                $conversation->user_id = $orign_conv->user_id;
+                $conversation->updateFolder();
+                $conversation->save();
+
+                
+                $thread = Thread::createExtended([
+                        'conversation_id' => $orig_thread->conversation_id,
+                        'user_id' => $orig_thread->user_id,
+                        'type' => $orig_thread->type,
+                        'status' => $conversation->status,
+                        'state' => $conversation->state,
+                        'body' => $orig_thread->body,
+                        'headers' => $orig_thread->headers,
+                        'from' => $orig_thread->from,
+                        'to' => $orig_thread->to,
+                        'cc' => $orig_thread->cc,
+                        'bcc' => $orig_thread->bcc,
+                        // todo.
+                        //'attachments' => $attachments,
+                        'has_attachments' => false, //$orig_thread->has_attachments,
+                        'message_id' => "clone".crc32(microtime()).'-'.$orig_thread->message_id,
+                        'source_via' => $orig_thread->source_via,
+                        'source_type' => $orig_thread->source_type,
+                        'customer_id' => $orig_thread->customer_id,
+                        'created_by_customer_id' => $orig_thread->created_by_customer_id,
+                    ],
+                    $conversation
+                );
+                
+                // Update folders counters
+                //$conversation->mailbox->updateFoldersCounters();
+
+                return redirect()->away($conversation->url());
+            } else {
+                return redirect()->away($mailbox->url());
+            }
+        } else {
+            return redirect()->away($mailbox->url());
+        }
+    }
+
+    /**
      * Conversation draft.
      */
     // public function draft($id)
@@ -749,7 +831,7 @@ class ConversationsController extends Controller
 
                     // Fire events
                     \Eventy::action('conversation.send_reply_save', $conversation, $request);
-                    
+
                     if (!$new) {
                         if ($status_changed) {
                             event(new ConversationStatusChanged($conversation));
@@ -809,7 +891,7 @@ class ConversationsController extends Controller
                     if (!empty($request->saved_reply_id)) {
                         $thread->saved_reply_id = $request->saved_reply_id;
                     }
-                    
+
                     $forwarded_conversations = [];
                     $forwarded_threads = [];
 
@@ -1384,7 +1466,7 @@ class ConversationsController extends Controller
                 }
                 break;
 
-            // Load attachments from all threads in conversation 
+            // Load attachments from all threads in conversation
             // when forwarding or creating a new conversation.
             case 'load_attachments':
                 $conversation = Conversation::find($request->conversation_id);
@@ -2112,7 +2194,7 @@ class ConversationsController extends Controller
             'mailboxes'    => $user->mailboxesCanView(),
         ]);
     }
-    
+
     /**
      * Merge conversations.
      */
