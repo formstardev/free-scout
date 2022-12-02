@@ -2577,7 +2577,6 @@ class ConversationsController extends Controller
                     ->orWhere('customers.city', 'like', $like)
                     ->orWhere('customers.state', 'like', $like)
                     ->orWhere('customers.zip', 'like', $like)
-                    ->orWhere('customers.zip', 'like', $like)
                     ->orWhere('emails.email', 'like', $like);
             });
 
